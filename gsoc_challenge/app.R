@@ -10,11 +10,6 @@ sapply(pcakages, require, character.only = TRUE)
 library(shiny)
 a <- read.csv("a.csv");
 country <- read.csv("countrycode.csv");
-for(i in country){
-  choice = paste0('"',country[i,1],'"','=','"',country[i,2],'"')
-}
-choice
-
 # Define UI for application that draws a histogram
 ui <- fluidPage(
 
@@ -32,7 +27,7 @@ ui <- fluidPage(
               onInitialize = I('function() { this.setValue(""); }')
             )
           ),
-          selectizeInput("country", "Select Country", choices = as.data.frame(choice),
+          selectizeInput("country", "Select Country", choices = country[2],
                          options = list(
                            placeholder = 'Please select Country',
                            onInitialize = I('function() { this.setValue(""); }')
@@ -46,6 +41,7 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
+          textOutput("text"),
           dataTableOutput('table')
         )
     )
@@ -53,19 +49,27 @@ ui <- fluidPage(
 
 # Define 'server logic required to draw a histogram
 server <- function(input, output) {
-  gbif <- function(sname="Mammalia", olimit=10, cntry="US"){
-    key <- name_backbone(name = sname)$usageKey
-    occ <- occ_search(taxonKey = key,country = input$country, limit = olimit,
-                      year = "2017,2018" ,return = "data")
-    return(occ)
-  }
-
   
-  
-  # occ <- occ[c("class","family", "genus", "species", "specificEpithet", "stateProvince")]
-  output$table = renderDataTable(occ <- gbif(input$sname,input$limit))
-  
+  observeEvent(input$search, {
+    output$table = renderDataTable(occ <- gbif(input$sname,input$limit,input$cntry, input$fields))
+    
+  })
 }
 
+
+
+#functions.............................................................................
+gbif <- function(sname="Mammalia", olimit=10, cntry="US", fields){
+  key <- name_backbone(name = sname)$usageKey
+  occ <- occ_search(taxonKey = key,country = cntry, limit = olimit,
+                    year = "2017,2018" ,return = "data")
+  if(is.null(fields)){
+    fields=c("class","family", "genus", "species")
+  }
+  else{
+    fields = fields
+  }
+  return(occ[fields])
+}
 # Run the application 
 shinyApp(ui = ui, server = server)
