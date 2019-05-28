@@ -41,18 +41,21 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
-          textOutput("text"),
-          dataTableOutput('table')
+          tabsetPanel(type="tab",
+                      tabPanel("Summary", textOutput("summary")),
+                      tabPanel("Data", dataTableOutput('table'))
+          )
         )
     )
 )
 
 # Define 'server logic required to draw a histogram
 server <- function(input, output) {
-  
+  output$summary <- renderText("Hello this is a text")
+
   observeEvent(input$search, {
     output$table = renderDataTable(occ <- gbif(input$sname,input$limit,input$cntry, input$fields))
-    
+
   })
 }
 
