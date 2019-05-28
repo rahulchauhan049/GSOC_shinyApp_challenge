@@ -82,7 +82,18 @@ ui <- fluidPage(
     
         ),
     navbarMenu("Visualization",
-               tabPanel("Spatial Visualizations", value = 3, plotOutput("hist"),hr(), radioButtons("downtype", label = "Select file type", choices = c("JPG"="jpg", "PNG"="png", "PDF"="pdf"), inline = TRUE), downloadButton(outputId = "down", label = "Download Plot")),
+               tabPanel("Spatial Visualizations",
+                        sidebarLayout(
+                          sidebarPanel(conditionalPanel(condition = "input.spatialvisualization==1", textInput("s","sda"))),
+                          mainPanel(
+                            tabsetPanel(id="spatialvisualization",
+                              tabPanel("hist", value = 1, plotOutput("hist"),hr(), radioButtons("downtype", label = "Select file type", choices = c("JPG"="jpg", "PNG"="png", "PDF"="pdf"), inline = TRUE), downloadButton(outputId = "down", label = "Download Plot")),
+                              tabPanel("map", value = 2),
+                            tabPanel("third", value = 3)
+                            )
+                          )
+                        )
+                        ),
                tabPanel("Temporal Visualizations", value = 4),
                tabPanel("Taxonomic Visualizations", value = 5))
     
