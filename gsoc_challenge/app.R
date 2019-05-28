@@ -43,7 +43,10 @@ ui <- fluidPage(
         mainPanel(
           tabsetPanel(type="tab",
                       tabPanel("Summary", textOutput("summary")),
-                      tabPanel("Data", dataTableOutput('table'))
+                      tabPanel("Data", dataTableOutput('table')),
+                      tabPanel("Spatial", plotOutput("hist"),hr(), radioButtons("downtype", label = "Select file type", choices = c("JPG"="jpg", "PNG"="png"), inline = TRUE), downloadButton(outputId = "down", label = "Download Plot")),
+                      tabPanel("temporal"),
+                      tabPanel("taxonomic")
           )
         )
     )
@@ -51,8 +54,22 @@ ui <- fluidPage(
 
 # Define 'server logic required to draw a histogram
 server <- function(input, output) {
+  spatialtype <- reactive({
+    input$downtype
+  })
+  output$down <- downloadHandler(filename = function(){
+    paste("hist",spatialtype(), sep = ".")
+  },
+    content = function(file){
+      png(file)
+      hist(c(1,2,3,4,5))
+      dev.off()
+    }
+  )
+  
+  
   output$summary <- renderText("Hello this is a text")
-
+  output$hist = renderPlot(hist(c(1,2,3,4,5)))
   observeEvent(input$search, {
     output$table = renderDataTable(occ <- gbif(input$sname,input$limit,input$cntry, input$fields))
 
