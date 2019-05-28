@@ -1,5 +1,5 @@
 # loading packages, if not installed and installing them.
-pcakages <- c( "rgbif", "bdvis") # list of packages needed
+pcakages <- c( "rgbif", "bdvis", "rinat") # list of packages needed
 req_packages <- pcakages[!(pcakages %in% installed.packages()[, "Package"])] # checking if the exist
 if (length(req_packages) > 0) { # installing is needed
   install.packages(req_packages, dependencies = TRUE)
@@ -7,7 +7,7 @@ if (length(req_packages) > 0) { # installing is needed
 #Display
 sapply(pcakages, require, character.only = TRUE)
 library(shiny)
-
+library("rinat")
 #Download required tables from local system
 a <- read.csv("a.csv");
 country <- read.csv("countrycode.csv");
@@ -21,8 +21,8 @@ ui <- fluidPage(
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
-        sidebarPanel(
-          selectizeInput(
+        
+          conditionalPanel(condition = "input.tabselected==2",sidebarPanel(selectizeInput(
             'sname', 'Search Scientific Name', choices = c("Animalia", "Viruses", "Archaea", "incertae sedis",
                                                            "Protozoa", "Bacteria", "Chromista", "Fungi", "Plantae"),
             options = list(
@@ -42,16 +42,17 @@ ui <- fluidPage(
           actionButton("search",label="Search || Update",styleclass="primary"),
           hr(),"Click on the download button to download dataset observation", radioButtons("dataradio", label = "Select file type", choices = c("Excel (CSV)", "Text (TSV)", "Text (Space Separated)", "Doc"), inline = TRUE),
           downloadButton(outputId = "databutton", label = "Download Data")
+          )
         ),
         
         # Show a plot of the generated distribution
         mainPanel(
-          tabsetPanel(type="tab",
-                      tabPanel("Summary", textOutput("summary")),
-                      tabPanel("Data", dataTableOutput('table')),
-                      tabPanel("Spatial", plotOutput("hist"),hr(), radioButtons("downtype", label = "Select file type", choices = c("JPG"="jpg", "PNG"="png", "PDF"="pdf"), inline = TRUE), downloadButton(outputId = "down", label = "Download Plot")),
-                      tabPanel("temporal"),
-                      tabPanel("taxonomic")
+          tabsetPanel(type="tab", id="tabselected",
+                      tabPanel("Summary", value = 1, textOutput("summary")),
+                      tabPanel("Data", value = 2, dataTableOutput('table')),
+                      tabPanel("Spatial", value = 3, plotOutput("hist"),hr(), radioButtons("downtype", label = "Select file type", choices = c("JPG"="jpg", "PNG"="png", "PDF"="pdf"), inline = TRUE), downloadButton(outputId = "down", label = "Download Plot")),
+                      tabPanel("temporal", value = 4),
+                      tabPanel("taxonomic", value = 5)
           )
         )
     )
@@ -59,6 +60,9 @@ ui <- fluidPage(
 
 # Define 'server logic required to draw a histogram..........................................................................................................
 server <- function(input, output) {
+
+  
+  
   #Download type of spatial tab
   spatialtype <- reactive({
     input$downtype
