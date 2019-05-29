@@ -12,7 +12,6 @@ library(shiny)
 a <- read.csv("a.csv");
 country <- read.csv("countrycode.csv");
 
-
 # Define UI for application that draws a histogram........................................................................................................
 ui <- fluidPage(
   div(img(src="logo.png", style="margin-top: 10px; width: 120px; float: right;", height = 50)),
@@ -51,14 +50,14 @@ ui <- fluidPage(
                sidebarLayout(
                  
                  sidebarPanel(selectizeInput(
-                   'sname', 'Search Scientific Name', choices = c("Animalia", "Viruses", "Archaea", "incertae sedis",
+                   'sname', 'Search Scientific Name', choices = c("Mammalia", "Animalia", "Viruses", "Archaea", "incertae sedis",
                                                                   "Protozoa", "Bacteria", "Chromista", "Fungi", "Plantae"),
                    options = list(
                      placeholder = 'Please select an option below',
                      onInitialize = I('function() { this.setValue(""); }')
                    )
                  ),
-                 selectizeInput("country", "Select Country", choices = country[2],
+                 selectizeInput("cntry", "Select Country", choices = country[2],
                                 options = list(
                                   placeholder = 'Please select Country',
                                   onInitialize = I('function() { this.setValue(""); }')
@@ -84,18 +83,50 @@ ui <- fluidPage(
     navbarMenu("Visualization",
                tabPanel("Spatial Visualizations",
                         sidebarLayout(
-                          sidebarPanel(conditionalPanel(condition = "input.spatialvisualization==1", textInput("s","sda"))),
+                          sidebarPanel(conditionalPanel(condition = "input.spatialvisualization==1",
+                                                        selectizeInput(
+                                                          'snamemapgrid', 'Search Scientific Name', choices = c("Mammalia", "Animalia", "Viruses", "Archaea", "incertae sedis",
+                                                                                                         "Protozoa", "Bacteria", "Chromista", "Fungi", "Plantae"),
+                                                          options = list(
+                                                            placeholder = 'Please select an option below',
+                                                            onInitialize = I('function() { this.setValue(""); }')
+                                                          )
+                                                        ),selectizeInput("countrymapgrid", "Select Country", choices = country[2],
+                                                                         options = list(
+                                                                           placeholder = 'Please select Country',
+                                                                           onInitialize = I('function() { this.setValue(""); }')
+                                                                         )),numericInput("limitmapgrid","Enter a search limit:",value = 40,min = 10,max = 1000000),
+                                                        actionButton("searchmapgrid",label="Search || Update",styleclass="primary"),hr(), radioButtons("downtype", label = "Select file type", choices = c("JPG"="jpg", "PNG"="png", "PDF"="pdf"), inline = TRUE), downloadButton(outputId = "down", label = "Download Plot"))),
                           mainPanel(
                             tabsetPanel(id="spatialvisualization",
-                              tabPanel("hist", value = 1, plotOutput("hist"),hr(), radioButtons("downtype", label = "Select file type", choices = c("JPG"="jpg", "PNG"="png", "PDF"="pdf"), inline = TRUE), downloadButton(outputId = "down", label = "Download Plot")),
-                              tabPanel("map", value = 2),
-                            tabPanel("third", value = 3)
+                              tabPanel("Mapgrid", value = 1, plotOutput("mapgrid")),
+                            tabPanel("Distrigraph", value = 2)
                             )
                           )
                         )
                         ),
-               tabPanel("Temporal Visualizations", value = 4),
-               tabPanel("Taxonomic Visualizations", value = 5))
+               tabPanel("Temporal Visualizations", sidebarLayout(
+                 sidebarPanel(conditionalPanel(condition = "input.temporalvisualization==1", textInput("t","qdq"))
+                 ),
+                 mainPanel(
+                   tabsetPanel(id="temporalvisualization",
+                               tabPanel("Bdcalendarheat", value = 1),
+                               tabPanel("Chronohorogram", value = 2),
+                               tabPanel("Tempolar", value = 3)
+                   )
+                 )
+               )),
+               tabPanel("Taxonomic Visualizations", sidebarLayout(
+                 sidebarPanel(conditionalPanel(condition = "input.taxonomicvisualization==1", textInput("t","qdq"))
+                 ),
+                 mainPanel(
+                   tabsetPanel(id="taxonomicvisualization",
+                               tabPanel("Taxotree", value = 1),
+                               tabPanel("WordCloud", value = 2)
+                   )
+                 )
+               ))
+               )
     
     )
 )
@@ -151,14 +182,37 @@ server <- function(input, output, session) {
   #Output for Data Tab
   observeEvent(input$search, {
     output$table = renderDataTable(occ <- gbif(input$sname,input$limit,input$cntry, input$fields))
-
+  
+  })
+  observeEvent(input$searchmapgrid, {
+    output$mapgrid <- renderPlot({
+      mapgridfunction(input$snamemapgrid, input$limitmapgrid, input$countrymapgrid)
+    })
   })
 }
 
 
 
 #functions.............................................................................
-gbif <- function(sname="Mammalia", olimit=10, cntry="US", fields){
+#webmap
+mapgridfunction <- function(sname="Mammals", limit=40, cntry="world"){
+  if(cntry=="world")
+    cntry=NULL
+  key <- name_backbone(name = sname)$usageKey
+  mammals <-occ_search(taxonKey = key,country = cntry, limit = limit, hasCoordinate=TRUE, hasGeospatialIssue=FALSE, return = "data")
+  mammals <- format_bdvis(mammals,source='rgbif')
+  mammals_g <- mammals[c("Longitude", "Latitude")]
+  mammals_g=format_bdvis(mammals_g,source='rgbif')
+  if(is.null(cntry))
+    cntry = "."
+  mapgrid(indf = mammals_g, ptype = "records", title = sname, legscale = 0, collow = "blue", colhigh = "red",
+          mapdatabase = "world", region = cntry, gridscale = 1 )
+}
+
+#Data Download...........................................................................
+gbif <- function(sname="Mammalia", olimit=10, cntry="world", fields){
+  if(cntry=="world")
+    cntry=NULL
   key <- name_backbone(name = sname)$usageKey
   occ <- occ_search(taxonKey = key,country = cntry, limit = olimit,
                     year = "2017,2018" ,return = "data")
