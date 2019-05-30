@@ -1,5 +1,5 @@
 # loading packages, if not installed and installing them.
-pcakages <- c( "rgbif", "bdvis", "shinythemes") # list of packages needed
+pcakages <- c( "rgbif", "bdvis", "shinythemes", 'rinat') # list of packages needed
 req_packages <- pcakages[!(pcakages %in% installed.packages()[, "Package"])] # checking if the exist
 if (length(req_packages) > 0) { # installing is needed
   install.packages(req_packages, dependencies = TRUE)
@@ -49,7 +49,7 @@ ui <- fluidPage(
       tabPanel("Data", value = "data", 
                sidebarLayout(
                  
-                 sidebarPanel(selectizeInput(
+                 sidebarPanel(conditionalPanel(condition = "input.datatabs==1",selectizeInput(
                    'sname', 'Search Scientific Name', choices = c("Mammalia", "Animalia", "Viruses", "Archaea", "incertae sedis",
                                                                   "Protozoa", "Bacteria", "Chromista", "Fungi", "Plantae"),
                    options = list(
@@ -69,12 +69,18 @@ ui <- fluidPage(
                  actionButton("search",label="Search || Update",styleclass="primary"),
                  hr(),"Click on the download button to download dataset observation", radioButtons("dataradio", label = "Select file type", choices = c("Excel (CSV)", "Text (TSV)", "Text (Space Separated)", "Doc"), inline = TRUE),
                  downloadButton(outputId = "databutton", label = "Download Data")
-                 )
+                 
+                 ),conditionalPanel(condition = "input.datatabs==2", textInput("queryrinat", "Query"), textInput("taxon_namerinat", "taxon_name"), numericInput("maxrinat", "No. of Obervations", value = 50),numericInput("year", "Year", value = 2019),  numericInput("month", "Month", value = 01, min = 01, max = 12), numericInput("date", "Date", value = 01, min = 01, max = 30),
+                                    actionButton("searchrinat",label="Search || Update",styleclass="primary"),
+                                    hr(),"Click on the download button to download dataset observation", radioButtons("dataradiorinat", label = "Select file type", choices = c("Excel (CSV)", "Text (TSV)", "Text (Space Separated)", "Doc"), inline = TRUE),
+                                    downloadButton(outputId = "databuttonrinat", label = "Download Data")))
                  ,
                  
                  # Show a plot of the generated distribution
                  mainPanel(
-                   dataTableOutput('table')
+                   tabsetPanel(id="datatabs", tabPanel("GBIF",value = 1, dataTableOutput('table')),
+                                  tabPanel("RINAT", value = 2, dataTableOutput('rinattable')))
+                   
                  ))
 
     # Sidebar with a slider input for number of bins 
@@ -153,7 +159,12 @@ server <- function(input, output, session) {
     switch(input$dataradio,
            "Excel (CSV)" = "csv", "Text (TSV)" = "txt","Text (Space Separated)" = "txt", "Doc" = "doc")
     
-  })  
+  })
+  fileextrinat <- reactive({
+    switch(input$dataradiorinat,
+           "Excel (CSV)" = "csv", "Text (TSV)" = "txt","Text (Space Separated)" = "txt", "Doc" = "doc")
+    
+  }) 
   #Download function for spatial type plot
   output$down <- downloadHandler(filename = function(){
     paste("hist",spatialtype(), sep = ".")
@@ -167,12 +178,24 @@ server <- function(input, output, session) {
       dev.off()
     }
   )
+  
   #Download button for Data
   output$databutton <- downloadHandler(filename = function(){
     paste(input$dataradio, fileext(), sep = ".")
   }, content = function(file){
     sep <- switch(input$dataradio, "Excel (CSV)" = ",", "Text (TSV)" = "\t","Text (Space Separated)" = " ", "Doc" = " ")
     write.table(occ <- gbif(input$sname,input$limit,input$cntry, input$fields), file, sep = sep, row.names = FALSE)
+  })
+  #Download button for rinat
+  output$databuttonrinat <- downloadHandler(filename = function(){
+    paste(input$dataradiorinat, fileextrinat(), sep = ".")
+  }, content = function(file){
+    sep <- switch(input$dataradiorinat, "Excel (CSV)" = ",", "Text (TSV)" = "\t","Text (Space Separated)" = " ", "Doc" = " ")
+    write.table(inat<-inatdata(input$queryrinat, input$taxon_namerinat, input$maxrinat, input$year, input$month, input$date), file, sep = sep, row.names = FALSE)
+  })
+  observeEvent(input$searchrinat,{
+    
+    output$rinattable <- renderDataTable(inat<-inatdata(input$queryrinat, input$taxon_namerinat, input$maxrinat, input$year, input$month, input$date))
   })
   
   #Output for Summart Tab
@@ -189,6 +212,7 @@ server <- function(input, output, session) {
       mapgridfunction(input$snamemapgrid, input$limitmapgrid, input$countrymapgrid)
     })
   })
+
 }
 
 
@@ -210,6 +234,11 @@ mapgridfunction <- function(sname="Mammals", limit=40, cntry="world"){
 }
 
 #Data Download...........................................................................
+#rinat...................................................................................
+inatdata <- function(queries=NULL, taxon="reptileindia", max=50, year=NULL, month=NULL, day=NULL){
+  inat<-get_inat_obs(query = queries, taxon_name = taxon, taxon_id = NULL, quality = NULL, geo = TRUE, year = year, month = month, day = day, bounds = NULL, maxresults = max, meta = FALSE)
+}
+#gbif....................................................................................
 gbif <- function(sname="Mammalia", olimit=10, cntry="world", fields){
   if(cntry=="world")
     cntry=NULL
