@@ -1,12 +1,12 @@
 # Biodiversity Data Visualizations
 ## For Spatial Data
 ### 1 Maps with grids
-![Density Grid Map](assets\spatial\densitygridmap.PNG)
+![Density Grid Map](assets/spatial/densitygridmap.PNG)
 
 ### 2 The bubble plot (on a map)
-![Bubble](\assets\spatial\bubble.png)
+![Bubble](assets/spatial/bubble.png)
 ### 3 Choropleth
-![Chloropleth](assets\spatial\choropleth.png)
+![Chloropleth](assets/spatial/choropleth.png)
 A choropleth map (from Greek χῶρος "area/region" and πλῆθος "multitude") is a thematic map in which areas are shaded or patterned in proportion to the measurement of the statistical variable being displayed on the map, such as population density or per-capita income.
 
 Choropleth maps provide an easy way to visualize how a measurement varies across a geographic area or show the level of variability within a region. A heat map is similar but does not use geographic boundaries.
