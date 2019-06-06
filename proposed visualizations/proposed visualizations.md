@@ -1,13 +1,16 @@
 # Biodiversity Data Visualizations
 ## For Spatial Data
 ### 1 Maps with grids
-![Density Grid Map](assets\spatial\densitygridmap.PNG)
+![Density Grid Map](assets/spatial/densitygridmap.PNG)
+A density grid is a way to visualize and analyze point data by transforming the points into a regular grid. Each resulting grid cell is assigned a value that is determined by the density of nearby points, optionally weighting each point using a weighting value.
 
 ### 2 The bubble plot (on a map)
-![Bubble](\assets\spatial\bubble.png)
+![Bubble](assets/spatial/bubble.png)
+A bubble map uses circles of different size to represent a numeric value on a territory. It displays one bubble per geographic coordinate, or one bubble per region (in this case the bubble is usually displayed in the baricentre of the region).
+
 ### 3 Choropleth
-![Chloropleth](assets\spatial\choropleth.png)
-A choropleth map (from Greek χῶρος "area/region" and πλῆθος "multitude") is a thematic map in which areas are shaded or patterned in proportion to the measurement of the statistical variable being displayed on the map, such as population density or per-capita income.
+![Chloropleth](assets/spatial/choropleth.png)
+Choropleth Maps display divided geographical areas or regions that are coloured, shaded or patterned in relation to a data variable. This provides a way to visualise values over a geographical area, which can show variation or patterns across the displayed location. It can be used to visualize the distribution of a particular species within a geographical region.
 
 Choropleth maps provide an easy way to visualize how a measurement varies across a geographic area or show the level of variability within a region. A heat map is similar but does not use geographic boundaries.
 
@@ -32,7 +35,9 @@ A contour line (also isoline, isopleth, or isarithm) of a function of two variab
 
 ## Temporal
 ### 1 Bubble chart
+
 ![Bubble Chart](assets/temporal/bubblechart.PNG)
+Bubble charts or bubble graphs are extremely useful graphs for comparing the relationships between data objects in 3 numeric-data dimensions: the X-axis data, the Y-axis data, and data represented by the bubble size. Essentially, bubble charts are like XY scatter graphs except that each point on the scatter graph has an additional data value associated with it that is represented by the size of a circle or “bubble” centered around the XY point.
 
 ### 2 Timeline
 ![Timeline](assets/temporal/timeline.png)
@@ -67,15 +72,28 @@ Alluvial diagrams can also be used to illustrate patterns of flow on a fixed net
 
 ## Taxonomic
 ### 1 Pie chart
+Pie charts are generally used to show proportional data in the form of slice of pie.
+
+Pie chart can be used to represent percentage of different species in biodiversity data.
 ![Pie Chart](assets/taxonomical/piechart.PNG)
 
 ### 2 Word Cloud
+
 ![Word Cloud](assets/taxonomical/wordcloud.PNG)
+A visualisation method that displays how frequently words appear in a given body of text, by making the size of each word proportional to its frequency. All the words are then arranged in a cluster or cloud of words. Alternatively, the words can also be arranged in any format: horizontal lines, columns or within a shape.
+
+
 
 ### 3 Bubble cloud
+Bubble cloud are very similar to word cloud. Item with more frequency are in a bigger bubble than other items.
 ![Bubble Cloud](assets/taxonomical/bubble-d3.png)
 
 ### 4 Bar chart, Radial bar chart
+Bar Charts represent data as horizontal or vertical bars. The length of each bar is proportional to the value of the variable at theat point in time.
+
+In Biodiversity data, bar charts can help to view density of different speices in pertiular year.
+
+
 ![Bar chart, Radial bar chart](assets/taxonomical/bar.png)
 
 ### 5 Dendrogram
@@ -87,15 +105,19 @@ A dendrogram is a diagram representing a tree. This diagrammatic representation 
 
 A radial tree, or radial map, is a method of displaying a tree structure (e.g., a tree data structure) in a way that expands outwards, radially. It is one of many ways to visually display a tree,with examples extending back to the early 20th century. In use, it is a type of information graphic.
 ### 7 Hyperbolic tree
+It can be used to find relation of one class with another class
 ![Hyperbolic tree](assets/taxonomical/hyperbolic-d3.png)
 
 ### Gauge
+These gauges can be used to visualize amount of different category in data
 ![Gauge](assets/taxonomical/gauge.PNG)
 
 ### Org Chart
+This is a tree down structure and can be used to find relation of one class with another calss
 ![Org Chart](assets/taxonomical/orgchart.PNG)
 
 ### word tree chart
+Similar to Org chart
 ![word tree chart](assets/taxonomical/wordtreechart.PNG)
 
 
