@@ -96,29 +96,31 @@ In Biodiversity data, bar charts can help to view density of different speices i
 
 ![Bar chart, Radial bar chart](assets/taxonomical/bar.png)
 
-### 5 Dendrogram
+### 5 Voronoi tree map
+This can also be used to visualize the occurance frequency.
+![Dendrogram](assets/taxonomical/voronoi.jpg)
+
+
+### 6 Dendrogram
 ![Dendrogram](assets/taxonomical/dendrogram.png)
 
 A dendrogram is a diagram representing a tree. This diagrammatic representation is frequently used in different contexts:
-### 6 Radial tree
+### 7 Radial tree
 ![Radial Tree](assets/taxonomical/radial.png)
 
 A radial tree, or radial map, is a method of displaying a tree structure (e.g., a tree data structure) in a way that expands outwards, radially. It is one of many ways to visually display a tree,with examples extending back to the early 20th century. In use, it is a type of information graphic.
-### 7 Hyperbolic tree
+### 8 Hyperbolic tree
 It can be used to find relation of one class with another class
 ![Hyperbolic tree](assets/taxonomical/hyperbolic-d3.png)
 
-### Gauge
+### 9 Gauge
 These gauges can be used to visualize amount of different category in data
 ![Gauge](assets/taxonomical/gauge.PNG)
 
-### Org Chart
+### 10 Org Chart
 This is a tree down structure and can be used to find relation of one class with another calss
 ![Org Chart](assets/taxonomical/orgchart.PNG)
 
-### word tree chart
+### 11 word tree chart
 Similar to Org chart
 ![word tree chart](assets/taxonomical/wordtreechart.PNG)
-
-
-
