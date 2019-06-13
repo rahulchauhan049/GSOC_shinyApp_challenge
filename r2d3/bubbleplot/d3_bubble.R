@@ -8,3 +8,4 @@ bubble <- function(data, field = "family"){
 
 data<- read.csv("assets/csv/data.csv")
 bubble(data, field = "genus")
+r2d3(data = read.csv("data1.csv"), d3_version = 4, script = "assets/js/bubble.js")

@@ -32,4 +32,4 @@ data<- read.csv("assets/csv/worlddata.csv")
 #Example Using India Data
 data<- read.csv("assets/csv/indiadata.csv")
 
-d3_map(data, map = "world")
+d3_map(data, map = "IN")
