@@ -1,4 +1,4 @@
-// !preview r2d3 data = read.csv("data1.csv"), d3_version = 5
+// !preview r2d3 data = read.csv("src/csv/data1.csv"), d3_version = 5
 
 // Based on: https://bl.ocks.org/mbostock/4063530
 var color = d3.scaleLinear()
