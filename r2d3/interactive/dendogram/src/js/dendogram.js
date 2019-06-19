@@ -1,11 +1,13 @@
-// !preview r2d3 data = read.csv("data1.csv"), d3_version = 4
+// !preview r2d3 data = read.csv("flare.csv"), d3_version = 4
 
 // Based on: https://bl.ocks.org/mbostock/4063570
 var diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
-var g = svg.append("g").attr("transform", "translate(40,0)");
+var g = svg.append("g").attr("transform", "translate(40,0)")
 var dx = 10;
 var dy = width / 6;
-var margin = ({top: 10, right: 120, bottom: 10, left: 40});
+var format = d3.format(",d");
+
+var margin = ({top: 15, right: 150, bottom: 10, left: 150});
   const gLink = svg.append("g")
       .attr("fill", "none")
       .attr("stroke", "#555")
@@ -16,7 +18,7 @@ var margin = ({top: 10, right: 120, bottom: 10, left: 40});
       .attr("cursor", "pointer")
       .attr("pointer-events", "all");
 var tree = d3.cluster()
-    .size([height, width - 160]);
+    .size([height, width-500]);
 
 var stratify = d3.stratify()
     .parentId(function(d) { return d.id.substring(0, d.id.lastIndexOf(".")); });
@@ -24,11 +26,19 @@ var stratify = d3.stratify()
 r2d3.onRender(function(data, svg, w, h, options) {
   var root = stratify(data)
       .sort(function(a, b) { return (a.height - b.height) || a.id.localeCompare(b.id); });
+      root.sum(function (d) {
+    return d.value;
+})
+.sort(function (a, b) {
+    return b.height - a.height || b.value - a.value;
+});
       root.x0 = dy / 2;
   root.y0 = 0;
   root.descendants().forEach((d, i) => {
     d.id = i;
     d._children = d.children;
+        if (d.depth && d.id >1) d.children = null;
+
   });
       function update(source){
     const duration = d3.event && d3.event.altKey ? 2500 : 250;
@@ -64,14 +74,15 @@ const transition = svg.transition()
         });
 
   nodeEnter.append("circle")
-      .attr("r", 2.5);
+      .attr("r", 3).attr("fill", d => d._children ? "#000" : "#999")
+        .attr("stroke-width", 10);
 
   nodeEnter.append("text")
       .attr("dy", 3)
-      .attr("font-size", 2 + 4 * height / 100)
+      .attr("font-size", 2+4 * height / 100)
       .attr("x", function(d) { return d.children ? -8 : 8; })
       .style("text-anchor", function(d) { return d.children ? "end" : "start"; })
-      .text(function(d) { return d.data.id.split(".").pop(); });
+      .text(function(d) { return d.data.id.split(".").pop()+"\n" + format(d.value); });
       
        // Transition nodes to their new position.
     const nodeUpdate = node.merge(nodeEnter).transition(transition)
