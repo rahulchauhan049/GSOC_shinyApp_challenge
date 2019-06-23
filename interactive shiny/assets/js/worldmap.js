@@ -1,9 +1,3 @@
-var width = 960,
-    height = 600;
-var color= d3.scale.ordinal()
-			.domain([1,2,3,4,5,6,7,8,9])
-			.range("red", "steelblue");
-
 var projection = d3.geo.mercator().scale(250).translate([500,500]);
 var path = d3.geo.path()
     .projection(projection);
@@ -49,7 +43,7 @@ root.selectAll(".pin")
 							]) + ")";
 						  })
 						  .on('mouseover', tip.show)
-							.on('click', tip.hide);		
+							.on('mouseout', tip.hide);		
 					
 				//var projection = d3.geo.mercator().scale(900).translate([-600,700]);
 				var path= d3.geo.path().projection(projection);

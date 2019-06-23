@@ -1,5 +1,3 @@
-var width = 960,
-    height = 600;
 var color= d3.scale.ordinal()
 			.domain([1,2,3,4,5,6,7,8,9])
 			.range("red", "steelblue");
@@ -21,9 +19,9 @@ r2d3.onRender(function(us, svg, width, height, options) {
 			var group=root.selectAll("g")
 				.data(cantons.features)
 				.enter()
-				.append("g");
+				.append("g")
 				//.on('mouseover', tip.show)
-      			//.on('mouseout', tip.hide)
+      		//	.on('mouseout', tip.hide)
 					
 					
 					var tip = d3.tip()
@@ -49,8 +47,8 @@ root.selectAll(".pin")
 							]) + ")";
 						  })
 						  .on('mouseover', tip.show)
-							.on('click', tip.hide);		
-					
+						  .on('mouseout', tip.hide)
+
 				//var projection = d3.geo.mercator().scale(900).translate([-600,700]);
 				var path= d3.geo.path().projection(projection);
 

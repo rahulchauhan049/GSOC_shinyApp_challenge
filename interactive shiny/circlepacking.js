@@ -17,7 +17,7 @@ var stratify = d3.stratify()
 var diameter = Math.min(width, height),
     g = svg.append("g").attr(
       "transform",
-      "translate(" + (width - diameter) / 2 + "," + (height - diameter+52) *5 + ")")
+      "translate(" + (width)/2 + "," + (height - diameter+40) *5 + ")")
       
 
 var pack = d3.pack()

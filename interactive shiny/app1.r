@@ -1,79 +1,36 @@
-#Importing libraries
-library("bdvis")
-library("shiny")
-library("shinydashboard")
-library("shinyWidgets")
-library("r2d3")
+library(shiny)
+library(r2d3)
 library("dplyr")
 library("rgbif")
 library("jsonlite")
-#Import Datasets
 data<- read.csv("data.csv")
-
-
-#Shiny App starts from here............................
-ui <-  dashboardPage(
-  
-  title = "Interactive and reactive Shiny app experiment", skin = "purple",
-  dashboardHeader(title = "Interactive and reactive Shiny app experiment"),
-  
-  
-  
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("Data", tabName = "data", icon = icon("table")),
-      menuSubItem("Data Visualization", tabName = "plots")
-      
-    )
-  ),
-  
-  
-  dashboardBody(
-    tabItems(
-    tabItem(tabName = "data",
-              fluidRow(h1("Records from gbif."),
-                       br(), h3("Some recoreds with globally spread occurance."), br(), br()),
-              fluidRow(tabPanel(title = "Data",status = "primary",solidHeader = T, dataTableOutput('table'), background = "aqua"))
-      ),
-      
-      tabItem(tabName = "plots",
-              fluidRow(
-                column(1,
-              verbatimTextOutput("selected")),
-              ),fluidRow(
-              d3Output("d3"),
-              d3Output("map")
-              )
-                  )
-      
-    )
-  )
+ui <- fluidPage(
+  verbatimTextOutput("selected"),
+  d3Output("d3"),
+  d3Output("bar"),
+  d3Output("map")
 )
 
 
-# server
-server <- function(input, output){
-  output$table = renderDataTable(data)
-  #Here i have called shiny module that i made to create word cloud.....
-  #callModue(wordOutput, "same name that used in UI part")
+server <- function(input, output) {
   output$d3 <- renderD3({
     r2d3(
       data = read.csv("data1.csv"),
       css = "circlepacking.css", d3_version = 4, script = "circlepacking.js"
     )
   })
-  
+
   observeEvent(input$bar_clicked,{
     output$map <- renderD3(d3_map(data, name = input$bar_clicked))
   })
   
-  output$map <- renderD3(
-    d3_map(data)
-  )
+output$map <- renderD3(
+  d3_map(data)
+)
+  
+  
 }
-
-
-#Functions.................................................
+#functions
 hierarchy <- function(data) {
   data <- na.omit(data[c("kingdom", "phylum", "order", "family")])
   data <- arrange(data, order)
@@ -113,7 +70,7 @@ hierarchy <- function(data) {
 d3_map <- function(data, map="world", name=NA){
   data<- data[c("decimalLatitude", "decimalLongitude", "order")]
   data<- data<-na.omit(data)
-  
+
   if(is.na(name)){
   }else{
     clicked <- tail(unlist(strsplit(name, "\\.")),n=1)
@@ -135,5 +92,5 @@ d3_map <- function(data, map="world", name=NA){
                script = "assets/js/worldmap.js")
   }
 }
+shinyApp(ui = ui, server = server)
 
-shinyApp(ui, server)
