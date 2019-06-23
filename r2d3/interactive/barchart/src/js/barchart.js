@@ -13,7 +13,7 @@ var duration = 750,
     delay = 25;
 
 var partition = d3.layout.partition()
-    .value(function(d) { return d.size; });
+    .value(function(d) { return d.value; });
 
 var xAxis = d3.svg.axis()
     .scale(x)
@@ -188,7 +188,7 @@ function bar(d) {
       .attr("y", barHeight / 2)
       .attr("dy", ".35em")
       .style("text-anchor", "end")
-      .text(function(d) { return d.name; });
+      .text(function(d) { return d.id; });
 
   bar.append("rect")
       .attr("width", function(d) { return x(d.value); })
