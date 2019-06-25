@@ -6,6 +6,7 @@ bubble <- function(data, field = "family"){
   r2d3(data = data, d3_version = 4, script = "assets/js/bubble.js")
 }
 
-data<- read.csv("assets/csv/data.csv")
+data<- read.csv("../../data/sampledata.csv")
+data<- read.csv("../../data/hyenaData.csv")
+
 bubble(data, field = "genus")
-r2d3(data = read.csv("data1.csv"), d3_version = 4, script = "assets/js/bubble.js")

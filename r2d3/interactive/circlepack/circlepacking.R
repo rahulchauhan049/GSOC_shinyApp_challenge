@@ -37,6 +37,6 @@ circlepack <- function(data){
   r2d3(data = hierarchy(data),css = "src/css/circlepacking.css", d3_version = 4, script = "src/js/circlepacking.js")
 }
 
-circlepack(read.csv("src/csv/data.csv"))
+circlepack(read.csv("../../../data/sampledata.csv"))
 
 

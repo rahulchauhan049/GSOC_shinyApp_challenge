@@ -27,10 +27,10 @@ d3_map <- function(data, map = "world") {
   }
 }
 #Example using world Data
-data<- read.csv("assets/csv/worlddata.csv")
+data<- read.csv("../../data/worlddata.csv")
 
 #Example Using India Data
-data<- read.csv("assets/csv/indiadata.csv")
-
+data<- read.csv("../../data/indiadata.csv")
+data<- read.csv("../../data/hyenaData.csv")
 d3_map(data)
 

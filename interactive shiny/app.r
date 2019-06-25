@@ -8,7 +8,7 @@ library("dplyr")
 library("rgbif")
 library("jsonlite")
 #Import Datasets
-data <- read.csv("data.csv")
+data <- read.csv("../data/sampledata.csv")
 
 
 #Shiny App starts from here............................
@@ -21,7 +21,13 @@ ui <-  dashboardPage(
   
   dashboardSidebar(sidebarMenu(
     menuItem("Data", tabName = "data", icon = icon("table")),
-    menuSubItem("Data Visualization", tabName = "plots")
+    menuItem("Data Visualization 1", tabName = "plots"),
+    menuItem("Static Visualizations", menuSubItem("bubbleplot", tabName = "bubbleplot"),
+             menuSubItem("circlepacking", tabName = "circlepacking"),
+             menuSubItem("Dendogram", tabName = "dendogram"),
+             menuSubItem("Map", tabName = "map"),
+             menuSubItem("RadialTree", tabName = "radialtree"),
+             menuSubItem("Treemap", tabName = "treemap"))
     
   )),
   
@@ -51,7 +57,13 @@ ui <-  dashboardPage(
                d3Output("d3")),
       plotOutput("map")
       
-    )
+    ),
+    tabItem(tabName = "bubbleplot",d3Output("bubble")),
+    tabItem(tabName = "circlepacking",d3Output("circle")),
+    tabItem(tabName = "dendogram",d3Output("dendo")),
+    tabItem(tabName = "map",d3Output("mapoutput")),
+    tabItem(tabName = "radialtree",d3Output("radial")),
+    tabItem(tabName = "treemap",d3Output("tree"))
     
   ))
 )
@@ -64,7 +76,7 @@ server <- function(input, output) {
   #callModue(wordOutput, "same name that used in UI part")
   output$d3 <- renderD3({
     r2d3(
-      data = read.csv("data1.csv"),
+      data = read.csv("../data/hierarchy Data.csv"),
       css = "circlepacking.css",
       d3_version = 4,
       script = "circlepacking.js"
@@ -74,7 +86,7 @@ server <- function(input, output) {
   observeEvent(input$bar_clicked, {
     output$selected <- renderText(input$bar_clicked)
     output$map <- renderPlot({
-      {data<- read.csv("data.csv")
+      {data<- read.csv("../data/sampledata.csv")
         data <- format_bdvis(data,source='rgbif')
         data1 <- data[c("Longitude", "Latitude", "order")]
         clicked <- unlist(strsplit(input$bar_clicked, "\\."))
@@ -97,6 +109,14 @@ server <- function(input, output) {
     mapgrid(indf = data1, ptype = "records", title = "Mammals", legscale = 0, collow = "blue", colhigh = "red",
             mapdatabase = "world", gridscale = 1)
     
+  })
+  
+  #bubble
+  output$bubble <- renderD3({data<- read.csv("../data/hyenaData.csv")
+    data <- as.data.frame(table(data["genus"]))
+    names(data)[1]<-paste("id") 
+    names(data)[2]<-paste("value")
+    r2d3(data = data, d3_version = 4, script = "../r2d3/bubbleplot/assets/js/bubble.js")
   })
 }
 

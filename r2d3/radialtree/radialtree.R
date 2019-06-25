@@ -2,21 +2,21 @@ library("r2d3")
 library("dplyr")
 radialtree <- function(data, source = "na") {
   if (source == "rgbif") {
-    data <- na.omit(data[c("kingdom", "phylum", "order", "family")])
+    data <- na.omit(data[c("phylum", "order", "genus")])
     data <- arrange(data, order)
     data <- unique(data)
     id <-
-      as.data.frame(paste(data$kingdom, data$phylum, data$order, data$family, sep =
+      as.data.frame(paste(data$phylum, data$order, data$genus, sep =
                             "."))
     names(id)[1] <- "id"
-    kingdom <- na.omit(unique(data["kingdom"]))
     phylum <- na.omit(unique(data["phylum"]))
     order <- na.omit(unique(data["order"]))
-    for (i in kingdom) {
+    genus <- na.omit(unique(data["genus"]))
+    for (i in phylum) {
       a <- paste(i)
-      for (j in phylum) {
+      for (j in order) {
         b <- paste(i, j, sep = ".")
-        for (k in order) {
+        for (k in genus) {
           c <- paste(i, j, k, sep = ".")
           # for (l in family) {
           #   d <- paste(i, j, k, l, sep = ".")
@@ -46,7 +46,8 @@ radialtree <- function(data, source = "na") {
          script = "assets/js/radialtree.js")
   }
 }
-data<-read.csv("assets/csv/data.csv")
-flare<- read.csv("assets/csv/flare.csv")
+data<-read.csv("../../data/sampledata.csv")
+flare<- read.csv("../../data/flare.csv")
+data<- read.csv("../../data/hyenaData.csv")
 radialtree(flare)
 radialtree(data,source = "rgbif")

@@ -36,4 +36,4 @@ hierarchy <- function(data) {
   names(id)[2] <- paste("value")
   return(rbind(a, b, c, id))
 }
-temp<-hierarchy(read.csv("data.csv"))
+temp<-hierarchy(read.csv("../../data/sampledata.csv"))

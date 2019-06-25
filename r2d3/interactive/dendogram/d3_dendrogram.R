@@ -38,4 +38,4 @@ hierarchy <- function(data) {
   names(id)[2] <- paste("value")
   return(rbind(a, b, c, id))
 }
-r2d3(data=hierarchy(read.csv("src/csv/data.csv")),css="src/css/dendogram.css", d3_version = 4, script = "src/js/dendogram.js")
+r2d3(data=hierarchy(read.csv("../../../data/sampledata.csv")),css="src/css/dendogram.css", d3_version = 4, script = "src/js/dendogram.js")
