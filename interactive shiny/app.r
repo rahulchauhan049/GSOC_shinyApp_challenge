@@ -118,30 +118,87 @@ server <- function(input, output) {
     names(data)[2]<-paste("value")
     r2d3(data = data, d3_version = 4, script = "../r2d3/bubbleplot/assets/js/bubble.js")
   })
+  
+  #circle
+  output$circle <- renderD3(
+  r2d3(data = hierarchy(read.csv("../data/hyenaData.csv")),css = "../r2d3/circlepacking/assets/css/circlepacking.css", d3_version = 4, script = "../r2d3/circlepacking/assets/js/circlepacking.js")
+  )
+  
+  #dendo
+  output$dendo <- renderD3(r2d3(
+    data = hierarchy(read.csv("../data/hyenaData.csv")),
+    css = "../r2d3/dendogram/assets/css/dendogram.css",
+    d3_version = 4,
+    script = "../r2d3/dendogram/assets/js/dendogram.js"
+  ))
+  
+  #mapoutput
+  output$mapoutput <- renderD3({d3_map <- function(data, map = "world") {
+    data<- data[c("decimalLatitude", "decimalLongitude", "genericName")]
+    data<- data<-na.omit(data)
+    names(data)[names(data) == "genericName"] <- "name"
+    modified <- list(
+      traits = colnames(data),
+      values = data
+    )
+    modified<-jsonlite::toJSON(modified)
+    if(map=="world"){
+      r2d3::r2d3(data = c(jsonlite::read_json("../r2d3/map/assets/json/worldmap.json"),jsonlite::parse_json(modified)),
+                 css = "../r2d3/map/assets/css/map.css",
+                 d3_version = 3,
+                 dependencies = c("../r2d3/map/assets/js/topojson.min.js",
+                                  "http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"),
+                 script = "../r2d3/map/assets/js/worldmap.js")
+    }else if(map=="IN"){
+      r2d3::r2d3(data = c(jsonlite::read_json("../r2d3/map/assets/json/india.json"),jsonlite::parse_json(modified)),
+                 css = "../r2d3/map/assets/css/indiamap.css",
+                 d3_version = 3,
+                 dependencies = c("../r2d3/map/assets/js/topojson.min.js",
+                                  "http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"
+                 ),
+                 script = "../r2d3/map/assets/js/indiamap.js")
+    }
+  }
+  #Example of India Data
+  #indiadata<- read.csv("../data/indiadata.csv")
+  data<- read.csv("../data/hyenaData.csv")
+  d3_map(data)
+  })
+  
+  #radialtree
+  output$radial <- renderD3(r2d3(data = hierarchy(read.csv("../data/hyenaData.csv")),
+                                 css = "../r2d3/radialtree/assets/css/radialtree.css",
+                                 d3_version = 4,
+                                 script = "../r2d3/radialtree/assets/js/radialtree.js"))
+  
+  #treemap
+  output$tree <- renderD3(r2d3(data = hierarchy(read.csv("../data/hyenaData.csv")),css = "../r2d3/treemap/assets/css/treemap.css", d3_version = 4, script = "../r2d3/treemap/assets/js/treemap.js")
+)
+  
 }
 
 
 #Functions.................................................
 hierarchy <- function(data) {
-  data <- na.omit(data[c("kingdom", "phylum", "order", "family")])
+  data <- na.omit(data[c("order", "family" ,"genus")])
   data <- arrange(data, order)
-  temp <- as.data.frame(table(data["family"]))
+  temp <- as.data.frame(table(data["genus"]))
   data <- unique(data)
-  temp <- merge(data, temp , by.x = "family", by.y = "Var1")
-  temp <- temp[c("kingdom", "phylum", "order", "family", "Freq")]
+  temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
+  temp <- temp[c("order", "family","genus", "Freq")]
   id <-
-    as.data.frame(paste(data$kingdom, data$phylum, data$order, data$family, sep =
+    as.data.frame(paste(data$order, data$family, data$genus, sep =
                           "."))
   names(id)[1] <- "id"
   id <- arrange(id, id)
   temp <- arrange(temp, order)
   id <- cbind(id, temp["Freq"])
   
-  for (i in na.omit(unique(data["kingdom"]))) {
+  for (i in na.omit(unique(data["order"]))) {
     a <- as.data.frame(paste(i))
-    for (j in na.omit(unique(data["phylum"]))) {
+    for (j in na.omit(unique(data["family"]))) {
       b <- as.data.frame(paste(i, j, sep = "."))
-      for (k in na.omit(unique(data["order"]))) {
+      for (k in na.omit(unique(data["genus"]))) {
         c <- as.data.frame(paste(i, j, k, sep = "."))
       }
     }
@@ -158,6 +215,8 @@ hierarchy <- function(data) {
   names(id)[2] <- paste("value")
   return(rbind(a, b, c, id))
 }
+
+
 d3_map <- function(data, map = "world", name = NA) {
   data <- data[c("decimalLatitude", "decimalLongitude", "order")]
   data <- data <- na.omit(data)
@@ -190,4 +249,5 @@ d3_map <- function(data, map = "world", name = NA) {
   }
 }
 
+  
 shinyApp(ui, server)
