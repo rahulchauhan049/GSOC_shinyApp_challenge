@@ -36,6 +36,6 @@ hierarchy <- function(data) {
   names(id)[2] <- paste("value")
   return(rbind(a, b, c, id))
 }
-temp<-hierarchy(read.csv("../../data/hyenaData.csv"))
+#temp<-hierarchy(read.csv("../../data/hyenaData.csv"))
 
 r2d3(data = temp,css = "assets/css/circlepacking.css", d3_version = 4, script = "assets/js/circlepacking.js")

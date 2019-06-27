@@ -9,4 +9,4 @@ bubble <- function(data, field = "family"){
 data<- read.csv("../../data/sampledata.csv")
 data<- read.csv("../../data/hyenaData.csv")
 
-bubble(data, field = "genus")
+bubble(temp, field = "genus")

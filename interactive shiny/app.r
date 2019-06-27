@@ -8,10 +8,10 @@ library("dplyr")
 library("rgbif")
 library("jsonlite")
 #Import Datasets
-data <- read.csv("../data/sampledata.csv")
+data<- read.csv("../data/sampledata.csv")
+data1<- read.csv("../data/hyenaData.csv")
 
-
-#Shiny App starts from here............................
+#Shiny App starts from here...............................................
 ui <-  dashboardPage(
   title = "Interactive and reactive Shiny app experiment",
   skin = "purple",
@@ -20,16 +20,24 @@ ui <-  dashboardPage(
   
   
   dashboardSidebar(sidebarMenu(
+    selectInput("selectdata", "Select DataSet:",
+                c("Hyena Dataset" = "hyenaData.csv",
+                  "Mammals Dataset" = "sampledata.csv")),
+    
     menuItem("Data", tabName = "data", icon = icon("table")),
-    menuItem("Data Visualization 1", tabName = "plots"),
+    menuItem("Reactive Visualization Experiment", tabName = "plots"),
     menuItem("Static Visualizations", menuSubItem("bubbleplot", tabName = "bubbleplot"),
              menuSubItem("circlepacking", tabName = "circlepacking"),
              menuSubItem("Dendogram", tabName = "dendogram"),
              menuSubItem("Map", tabName = "map"),
              menuSubItem("RadialTree", tabName = "radialtree"),
-             menuSubItem("Treemap", tabName = "treemap"))
+             menuSubItem("Treemap", tabName = "treemap")),
+    menuItem("Interactive Visualizations",
+             menuSubItem("Dendogram", tabName = "idendogram"),
+             menuSubItem("circlepacking", tabName = "icirclepack"),
+             menuSubItem("Barchart", tabName = "ibarchart")
     
-  )),
+  ))),
   
   
   dashboardBody(tabItems(
@@ -63,7 +71,11 @@ ui <-  dashboardPage(
     tabItem(tabName = "dendogram",d3Output("dendo")),
     tabItem(tabName = "map",d3Output("mapoutput")),
     tabItem(tabName = "radialtree",d3Output("radial")),
-    tabItem(tabName = "treemap",d3Output("tree"))
+    tabItem(tabName = "treemap",d3Output("tree")),
+    tabItem(tabName = "idendogram", d3Output("interactivedendogram")),
+    tabItem(tabName = "icirclepack", d3Output("interactivecirclepack")),
+    tabItem(tabName = "ibarchart", d3Output("interactivebarchart"))
+    
     
   ))
 )
@@ -71,12 +83,14 @@ ui <-  dashboardPage(
 
 # server
 server <- function(input, output) {
-  output$table = renderDataTable(data)
+  data<- reactive(read.csv(paste0("../data/",input$selectdata, sep=""))
+)
+  output$table = renderDataTable(data())
   #Here i have called shiny module that i made to create word cloud.....
   #callModue(wordOutput, "same name that used in UI part")
   output$d3 <- renderD3({
     r2d3(
-      data = read.csv("../data/hierarchy Data.csv"),
+      data = hierarchy(data()),
       css = "circlepacking.css",
       d3_version = 4,
       script = "circlepacking.js"
@@ -86,7 +100,7 @@ server <- function(input, output) {
   observeEvent(input$bar_clicked, {
     output$selected <- renderText(input$bar_clicked)
     output$map <- renderPlot({
-      {data<- read.csv("../data/sampledata.csv")
+      {data<- data()
         data <- format_bdvis(data,source='rgbif')
         data1 <- data[c("Longitude", "Latitude", "order")]
         clicked <- unlist(strsplit(input$bar_clicked, "\\."))
@@ -103,7 +117,7 @@ server <- function(input, output) {
   })
   
   output$map <- renderPlot({
-    data <- format_bdvis(data,source='rgbif')
+    data <- format_bdvis(data(),source='rgbif')
     data1 <- data[c("Longitude", "Latitude")]
     data1 <- format_bdvis(data1,source='rgbif')
     mapgrid(indf = data1, ptype = "records", title = "Mammals", legscale = 0, collow = "blue", colhigh = "red",
@@ -112,7 +126,7 @@ server <- function(input, output) {
   })
   
   #bubble
-  output$bubble <- renderD3({data<- read.csv("../data/hyenaData.csv")
+  output$bubble <- renderD3({data<- data()
     data <- as.data.frame(table(data["genus"]))
     names(data)[1]<-paste("id") 
     names(data)[2]<-paste("value")
@@ -121,12 +135,12 @@ server <- function(input, output) {
   
   #circle
   output$circle <- renderD3(
-  r2d3(data = hierarchy(read.csv("../data/hyenaData.csv")),css = "../r2d3/circlepacking/assets/css/circlepacking.css", d3_version = 4, script = "../r2d3/circlepacking/assets/js/circlepacking.js")
+  r2d3(data = hierarchy(data()),css = "../r2d3/circlepacking/assets/css/circlepacking.css", d3_version = 4, script = "../r2d3/circlepacking/assets/js/circlepacking.js")
   )
   
   #dendo
   output$dendo <- renderD3(r2d3(
-    data = hierarchy(read.csv("../data/hyenaData.csv")),
+    data = hierarchy(data()),
     css = "../r2d3/dendogram/assets/css/dendogram.css",
     d3_version = 4,
     script = "../r2d3/dendogram/assets/js/dendogram.js"
@@ -161,61 +175,99 @@ server <- function(input, output) {
   }
   #Example of India Data
   #indiadata<- read.csv("../data/indiadata.csv")
-  data<- read.csv("../data/hyenaData.csv")
+  data<- data()
   d3_map(data)
   })
   
   #radialtree
-  output$radial <- renderD3(r2d3(data = hierarchy(read.csv("../data/hyenaData.csv")),
+  output$radial <- renderD3(r2d3(data = hierarchy(data()),
                                  css = "../r2d3/radialtree/assets/css/radialtree.css",
                                  d3_version = 4,
                                  script = "../r2d3/radialtree/assets/js/radialtree.js"))
   
   #treemap
-  output$tree <- renderD3(r2d3(data = hierarchy(read.csv("../data/hyenaData.csv")),css = "../r2d3/treemap/assets/css/treemap.css", d3_version = 4, script = "../r2d3/treemap/assets/js/treemap.js")
+  output$tree <- renderD3(r2d3(data = hierarchy(data()),css = "../r2d3/treemap/assets/css/treemap.css", d3_version = 4, script = "../r2d3/treemap/assets/js/treemap.js")
 )
   
+  #Interactive Visualizations..........................................................
+  #dendogram
+  output$interactivedendogram <- renderD3({
+    r2d3(data=hierarchy(data()),css="../r2d3/interactive/dendogram/src/css/dendogram.css", d3_version = 4, script = "../r2d3/interactive/dendogram/src/js/dendogram.js")
+    })
+  
+  #circlepack
+  output$interactivecirclepack <- renderD3(r2d3(data = hierarchy(data()),css = "../r2d3/interactive/circlepack/src/css/circlepacking.css", d3_version = 4, script = "../r2d3/interactive/circlepack/src/js/circlepacking.js")
+)
+  
+  #Barchart
+  output$interactivebarchart <- renderD3(r2d3(data=jsonlite::read_json("../data/sampledata.json"),css="../r2d3/interactive/barchart/src/css/barchart.css", d3_version = 3 , script = "../r2d3/interactive/barchart/src/js/barchart.js")
+)
 }
 
 
 #Functions.................................................
 hierarchy <- function(data) {
-  data <- na.omit(data[c("order", "family" ,"genus")])
-  data <- arrange(data, order)
+  data <- na.omit(data[c("phylum", "order", "family", "genus")])
+  data <- arrange(data, family)
   temp <- as.data.frame(table(data["genus"]))
   data <- unique(data)
   temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
-  temp <- temp[c("order", "family","genus", "Freq")]
+  temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
   id <-
-    as.data.frame(paste(data$order, data$family, data$genus, sep =
+    as.data.frame(paste(data$phylum, data$order, data$family, data$genus, sep =
                           "."))
   names(id)[1] <- "id"
   id <- arrange(id, id)
   temp <- arrange(temp, order)
   id <- cbind(id, temp["Freq"])
   
-  for (i in na.omit(unique(data["order"]))) {
-    a <- as.data.frame(paste(i))
-    for (j in na.omit(unique(data["family"]))) {
-      b <- as.data.frame(paste(i, j, sep = "."))
-      for (k in na.omit(unique(data["genus"]))) {
-        c <- as.data.frame(paste(i, j, k, sep = "."))
-      }
-    }
+  idnames <- id["id"]
+  emptyvectora <- c()
+  emptyvectorb <- c()
+  emptyvectorc <- c()
+  for (i in 1:nrow(idnames)) {
+    s <- ((unlist(strsplit(
+      as.character(idnames[i, ]), "\\."
+    ))))
+    s <- s[-length(s)]
+    s <- as.data.frame(t(s))
+    
+    p <-
+      as.data.frame(paste(s$V1, s$V2, s$V3, sep =
+                            "."))
+    t <- as.data.frame(paste(s$V1, s$V2, sep =
+                               "."))
+    u <- as.data.frame(paste(s$V1, sep =
+                               "."))
+    emptyvectora <- append(emptyvectora, p)
+    emptyvectorb <- append(emptyvectorb, t)
+    emptyvectorc <- append(emptyvectorc, u)
+    
   }
-  a <- cbind(a, NA)
-  b <- cbind(b, NA)
-  c <- cbind(c, NA)
-  names(a)[1] <- paste("id")
-  names(a)[2] <- paste("value")
-  names(b)[1] <- paste("id")
-  names(b)[2] <- paste("value")
-  names(c)[1] <- paste("id")
-  names(c)[2] <- paste("value")
+  emptyvectora <- as.data.frame((emptyvectora))
+  emptyvectora <- unique(t(emptyvectora))
+  rownames(emptyvectora) <- NULL
+  emptyvectora <- as.data.frame(emptyvectora)
+  emptyvectorb <- as.data.frame((emptyvectorb))
+  emptyvectorb <- unique(t(emptyvectorb))
+  rownames(emptyvectorb) <- NULL
+  emptyvectorb <- as.data.frame(emptyvectorb)
+  
+  emptyvectorc <- as.data.frame((emptyvectorc))
+  emptyvectorc <- unique(t(emptyvectorc))
+  rownames(emptyvectorc) <- NULL
+  emptyvectorc <- as.data.frame(emptyvectorc)
+  
+  mergeddf <- rbind(emptyvectora, emptyvectorb, emptyvectorc)
+  mergeddf <- cbind(mergeddf, NA)
+  
+  colnames(mergeddf) <- c("id", "value")
   names(id)[2] <- paste("value")
-  return(rbind(a, b, c, id))
+  temp <- rbind(mergeddf, id)
+  
+  
+  return(temp)
 }
-
 
 d3_map <- function(data, map = "world", name = NA) {
   data <- data[c("decimalLatitude", "decimalLongitude", "order")]
