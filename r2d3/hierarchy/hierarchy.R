@@ -62,4 +62,3 @@ hierarchy <- function(data) {
   
   return(temp)
 }
-temp <- hierarchy(read.csv("../../data/sampledata.csv"))

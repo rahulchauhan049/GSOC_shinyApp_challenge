@@ -67,7 +67,7 @@ root.sum(function (d) {
         return answer
       });
        node.append("title")
-      .text(function(d) { return d.id.split(".").pop() + "\n" + format(d.value); });
+      .text(function(d) { return d.id + "\n" + format(d.value); });
 
   zoomTo([root.x, root.y, root.r*5]);
   function zoomTo(v) {

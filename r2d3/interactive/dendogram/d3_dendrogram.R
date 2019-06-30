@@ -1,41 +1,69 @@
 library("r2d3")
 library("dplyr")
 library("r2d3")
+source("../../hierarchy/hierarchy.R")
 
 hierarchy <- function(data) {
-  data <- na.omit(data[c("kingdom", "phylum", "order", "family")])
-  data <- arrange(data, order)
-  temp <- as.data.frame(table(data["family"]))
+  data <- na.omit(data[c("phylum", "order", "family", "genus")])
+  data <- arrange(data, family)
+  temp <- as.data.frame(table(data["genus"]))
   data <- unique(data)
-  temp <- merge(data, temp , by.x = "family", by.y = "Var1")
-  temp <- temp[c("kingdom", "phylum", "order", "family", "Freq")]
+  temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
+  temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
   id <-
-    as.data.frame(paste(data$kingdom, data$phylum, data$order, data$family, sep =
+    as.data.frame(paste(data$phylum, data$order, data$family, data$genus, sep =
                           "."))
   names(id)[1] <- "id"
   id <- arrange(id, id)
   temp <- arrange(temp, order)
   id <- cbind(id, temp["Freq"])
-
-  for (i in na.omit(unique(data["kingdom"]))) {
-    a <- as.data.frame(paste(i))
-    for (j in na.omit(unique(data["phylum"]))) {
-      b <- as.data.frame(paste(i, j, sep = "."))
-      for (k in na.omit(unique(data["order"]))) {
-        c <- as.data.frame(paste(i, j, k, sep = "."))
-      }
-    }
+  
+  idnames <- id["id"]
+  emptyvectora <- c()
+  emptyvectorb <- c()
+  emptyvectorc <- c()
+  for (i in 1:nrow(idnames)) {
+    s <- ((unlist(strsplit(
+      as.character(idnames[i, ]), "\\."
+    ))))
+    s <- s[-length(s)]
+    s <- as.data.frame(t(s))
+    
+    p <-
+      as.data.frame(paste(s$V1, s$V2, s$V3, sep =
+                            "."))
+    t <- as.data.frame(paste(s$V1, s$V2, sep =
+                               "."))
+    u <- as.data.frame(paste(s$V1, sep =
+                               "."))
+    emptyvectora <- append(emptyvectora, p)
+    emptyvectorb <- append(emptyvectorb, t)
+    emptyvectorc <- append(emptyvectorc, u)
+    
   }
-  a <- cbind(a, NA)
-  b <- cbind(b, NA)
-  c <- cbind(c, NA)
-  names(a)[1] <- paste("id")
-  names(a)[2] <- paste("value")
-  names(b)[1] <- paste("id")
-  names(b)[2] <- paste("value")
-  names(c)[1] <- paste("id")
-  names(c)[2] <- paste("value")
+  emptyvectora <- as.data.frame((emptyvectora))
+  emptyvectora <- unique(t(emptyvectora))
+  rownames(emptyvectora) <- NULL
+  emptyvectora <- as.data.frame(emptyvectora)
+  emptyvectorb <- as.data.frame((emptyvectorb))
+  emptyvectorb <- unique(t(emptyvectorb))
+  rownames(emptyvectorb) <- NULL
+  emptyvectorb <- as.data.frame(emptyvectorb)
+  
+  emptyvectorc <- as.data.frame((emptyvectorc))
+  emptyvectorc <- unique(t(emptyvectorc))
+  rownames(emptyvectorc) <- NULL
+  emptyvectorc <- as.data.frame(emptyvectorc)
+  
+  mergeddf <- rbind(emptyvectora, emptyvectorb, emptyvectorc)
+  mergeddf <- cbind(mergeddf, NA)
+  
+  colnames(mergeddf) <- c("id", "value")
   names(id)[2] <- paste("value")
-  return(rbind(a, b, c, id))
+  temp <- rbind(mergeddf, id)
+  
+  
+  return(temp)
 }
+
 r2d3(data=hierarchy(read.csv("../../../data/sampledata.csv")),css="src/css/dendogram.css", d3_version = 4, script = "src/js/dendogram.js")
