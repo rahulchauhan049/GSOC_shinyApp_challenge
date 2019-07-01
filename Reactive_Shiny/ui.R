@@ -6,6 +6,8 @@ library("rinat")
 library("shinythemes")
 library("shiny")
 library(leaflet)
+library(crosstalk)
+
 
 # Define UI for application
 a <- read.csv("a.csv")
@@ -70,30 +72,30 @@ shinyUI(fluidPage(
                              tags$hr(),
                              
                              # Input: Checkbox if file has header ----
-                             checkboxInput("header", "Header", TRUE),
+                             checkboxInput("header1", "Header", TRUE),
                              
                              # Input: Select separator ----
                              radioButtons(
-                                 "sep",
-                                 "Separator",
-                                 choices = c(
-                                     Comma = ",",
-                                     Semicolon = ";",
-                                     Tab = "\t"
-                                 ),
-                                 selected = ","
+                               "sep1",
+                               "Separator",
+                               choices = c(
+                                 Comma = ",",
+                                 Semicolon = ";",
+                                 Tab = "\t"
+                               ),
+                               selected = ","
                              ),
                              
                              # Input: Select quotes ----
                              radioButtons(
-                                 "quote",
-                                 "Quote",
-                                 choices = c(
-                                     None = "",
-                                     "Double Quote" = '"',
-                                     "Single Quote" = "'"
-                                 ),
-                                 selected = '"'
+                               "quote1",
+                               "Quote",
+                               choices = c(
+                                 None = "",
+                                 "Double Quote" = '"',
+                                 "Single Quote" = "'"
+                               ),
+                               selected = '"'
                              ),
                              
                              # Horizontal line ----
@@ -101,11 +103,11 @@ shinyUI(fluidPage(
                              
                              # Input: Select number of rows to display ----
                              radioButtons(
-                                 "disp",
-                                 "Display",
-                                 choices = c(Head = "head",
-                                             All = "all"),
-                                 selected = "head"
+                               "disp1",
+                               "Display",
+                               choices = c(Head = "head",
+                                           All = "all"),
+                               selected = "head"
                              )
                          ),
                          conditionalPanel(
@@ -271,7 +273,9 @@ shinyUI(fluidPage(
                  )),
         tabPanel("Visualization", value = "visualization", 
                  mainPanel(
-                     leafletOutput("mymap"),DT::dataTableOutput("tb")
+                     leafletOutput("mymap"),
+                     verbatimTextOutput("v"),
+                     DT::dataTableOutput("tb")
                  ))
         )#End of navbar menu called visualization
     

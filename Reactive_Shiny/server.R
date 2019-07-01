@@ -4,6 +4,9 @@ library("bdvis")
 library("rinat")
 library("shinythemes")
 library(shiny)
+library("crosstalk")
+library(dplyr)
+
 #import Datasets
 a <- read.csv("a.csv")
 country <- read.csv("countrycode.csv")
@@ -11,28 +14,36 @@ country <- read.csv("countrycode.csv")
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
     
-    df <- reactive({tryCatch({
+    df <- reactive({
+        tryCatch({
         df <- read.csv(
             paste("www/csv/", input$datasetselected, sep = ""),
-            header = input$header,
-            sep = input$sep,
-            quote = input$quote
-        )
+            header = input$header1,
+            sep = input$sep1,
+            quote = input$quote1
+        ) %>% 
+            rename(
+                 latitude = decimalLatitude,
+                 longitude = decimalLongitude
+            )
+        
     },
     error = function(e) {
         # return a safeError if a parsing error occurs
         stop(safeError(e))
     })
-        if (input$disp == "head") {
-            return(head(df))
-        }
-        else {
-            return(df)
-        }
+        
     })
  
     
-    output$tableoutput <- DT::renderDataTable(df())
+    output$tableoutput <- DT::renderDataTable({df<-df()
+    if (input$disp1 == "head") {
+        return(head(df))
+    }
+    else {
+        return(df)
+    }
+    })
     output$tableupload <- DT::renderDataTable({
         # input$file1 will be NULL initially. After the user selects
         # and uploads a file, head of that data file by default,
@@ -49,6 +60,7 @@ shinyServer(function(input, output, session) {
                 sep = input$sep,
                 quote = input$quote
             )
+            df<-na.omit(df)
         },
         error = function(e) {
             # return a safeError if a parsing error occurs
@@ -172,22 +184,18 @@ shinyServer(function(input, output, session) {
     })
     
     ###########################################
- 
+    shared_data <- SharedData$new(df)
+    
     output$mymap <- renderLeaflet({
-        df <-df()
-        names(df)[names(df) == "decimalLatitude"] <- "latitude"
-        names(df)[names(df) == "decimalLongitude"] <- "longitude"
-        
-        
-        m <- leaflet() %>%
-            addTiles() %>%  # Add default OpenStreetMap map tiles
-            addMarkers(data=df, popup="The birthplace of R")
+
+        m <- leaflet(shared_data) %>%
+            addTiles() %>% addMarkers() # Add default OpenStreetMap map tiles
         m
     })
+    output$v <- renderText(class( shared_data))
     output$tb <- DT::renderDataTable({
-        df <- df()
-        df <-df[1:100,]
-    })
+        shared_data
+    }, server = FALSE)
 })#END OF SERVER
 
 #Data Download...........................................................................
