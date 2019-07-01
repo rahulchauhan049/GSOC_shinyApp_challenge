@@ -5,9 +5,12 @@ library("bdvis")
 library("rinat")
 library("shinythemes")
 library("shiny")
+library(leaflet)
+
 # Define UI for application
 a <- read.csv("a.csv")
 country <- read.csv("countrycode.csv")
+
 
 shinyUI(fluidPage(
     #GSOC Image
@@ -265,7 +268,13 @@ shinyUI(fluidPage(
                              tabPanel("RINAT", value = 4, dataTableOutput('rinattable'))
                          )
                      )
-                 )))#End of navbar menu called visualization
+                 )),
+        tabPanel("Visualization", value = "visualization", 
+                 mainPanel(
+                     leafletOutput("mymap"),DT::dataTableOutput("tb")
+                 ))
+        )#End of navbar menu called visualization
+    
         
     )#End of navbar page
 )#End of fluidpage)
