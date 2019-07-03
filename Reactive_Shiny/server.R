@@ -6,11 +6,11 @@ library("shinythemes")
 library(shiny)
 library("crosstalk")
 library(dplyr)
+library("plotly")
 
 #import Datasets
 a <- read.csv("a.csv")
 country <- read.csv("countrycode.csv")
-
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {
     
@@ -25,7 +25,7 @@ shinyServer(function(input, output, session) {
             rename(
                  latitude = decimalLatitude,
                  longitude = decimalLongitude
-            )
+            ) %>% na.omit(df)
         
     },
     error = function(e) {
@@ -184,7 +184,7 @@ shinyServer(function(input, output, session) {
     })
     
     ###########################################
-    shared_data <- SharedData$new(df)
+    shared_data <- SharedData$new(na.omit(df))
     
     output$mymap <- renderLeaflet({
 
@@ -193,9 +193,23 @@ shinyServer(function(input, output, session) {
         m
     })
     output$v <- renderText(class( shared_data))
-    output$tb <- DT::renderDataTable({
-        shared_data
-    }, server = FALSE)
+    output$tb <- DT::renderDataTable(
+        shared_data,options = list(
+            pageLength=4, scrollX='400px', scrollY = "200px"), server = FALSE)
+    
+    output$bar <- renderPlotly(plot_ly(data = shared_data, x = ~order, color = ~order))
+    
+    output$pie <- renderPlotly({
+        plot_ly(shared_data, labels = ~order, type = 'pie', textposition = 'inside',
+                textinfo = 'label+percent',
+                insidetextfont = list(color = '#FFFFFF'),
+                hoverinfo = 'text') %>%
+            layout(title = 'United States Personal Expenditures by Categories in 1960',
+                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+                   yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+        
+        
+    })
 })#END OF SERVER
 
 #Data Download...........................................................................
