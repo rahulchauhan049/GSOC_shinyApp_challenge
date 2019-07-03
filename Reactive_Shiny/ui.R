@@ -8,6 +8,10 @@ library("shiny")
 library(leaflet)
 library(crosstalk)
 library("plotly")
+library(r2d3)
+library(dplyr)
+library("collapsibleTree")
+
 
 # Define UI for application
 a <- read.csv("a.csv")
@@ -17,8 +21,8 @@ country <- read.csv("countrycode.csv")
 shinyUI(fluidPage(
   #GSOC Image
   # Application title
-  titlePanel("GSOC Shiny Challenge"),
-  theme = shinytheme("spacelab"),
+  titlePanel("Reactive Shiny Experiment"),
+  theme = shinytheme("flatly"),
   # returns URL of a shiny theme
   # themeSelector(),
   navbarPage(
@@ -275,16 +279,18 @@ shinyUI(fluidPage(
              value = "visualization",
              fluidPage(
                fluidRow(
-                 column(width = 6,
+                 column(width = 6, style = 'padding: 5px',
                         leafletOutput("mymap")),
-                 column(width = 6,
+                 column(width = 6, style = 'padding: 5px',
                         plotlyOutput("pie"))
                ), fluidRow(
-                 column(width = 6,
+                 column(width = 6, style = 'padding: 5px',
                         plotlyOutput("bar")),
-                 column(width = 6,
-                        DT::dataTableOutput("tb" ))
-               )
-             )
-  ))
+                 column(
+                   width = 6,
+                   style = 'padding: 5px', collapsibleTreeOutput("tree")
+                 )
+               ),DT::dataTableOutput("tb")
+             ))
+  )
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)

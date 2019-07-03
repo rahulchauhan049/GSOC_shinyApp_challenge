@@ -7,11 +7,14 @@ library(shiny)
 library("crosstalk")
 library(dplyr)
 library("plotly")
+library(r2d3)
+library("collapsibleTree")
+
 
 #import Datasets
 a <- read.csv("a.csv")
 country <- read.csv("countrycode.csv")
-# Define server logic required to draw a histogram
+
 shinyServer(function(input, output, session) {
     
     df <- reactive({
@@ -21,11 +24,13 @@ shinyServer(function(input, output, session) {
             header = input$header1,
             sep = input$sep1,
             quote = input$quote1
-        ) %>% 
+        )  %>% 
             rename(
-                 latitude = decimalLatitude,
-                 longitude = decimalLongitude
-            ) %>% na.omit(df)
+                latitude = decimalLatitude,
+                longitude = decimalLongitude)
+        df<-df[!is.na(df$latitude),]
+        df<-df[!is.na(df$longitude),]
+        
         
     },
     error = function(e) {
@@ -184,7 +189,8 @@ shinyServer(function(input, output, session) {
     })
     
     ###########################################
-    shared_data <- SharedData$new(na.omit(df))
+            
+    shared_data <- SharedData$new(df)
     
     output$mymap <- renderLeaflet({
 
@@ -197,18 +203,39 @@ shinyServer(function(input, output, session) {
         shared_data,options = list(
             pageLength=4, scrollX='400px', scrollY = "200px"), server = FALSE)
     
-    output$bar <- renderPlotly(plot_ly(data = shared_data, x = ~order, color = ~order))
-    
+    output$bar <- renderPlotly({
+        plot_ly(data = shared_data, x = ~order, color = ~order)})
     output$pie <- renderPlotly({
         plot_ly(shared_data, labels = ~order, type = 'pie', textposition = 'inside',
                 textinfo = 'label+percent',
                 insidetextfont = list(color = '#FFFFFF'),
                 hoverinfo = 'text') %>%
-            layout(title = 'United States Personal Expenditures by Categories in 1960',
+            layout(title = 'Quantity of perticular family in Biodiversity data.',
                    xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                    yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
         
         
+    })
+    
+    output$tree <- renderCollapsibleTree({
+        data <- df()
+        data <- na.omit(data[c("phylum", "order", "family", "genus")])
+        data <- arrange(data, family)
+        temp <- as.data.frame(table(data["genus"]))
+        data <- unique(data)
+        temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
+        temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
+        
+        temp %>%
+            group_by(order, family, genus) %>%
+            summarize(`Freq` = n()) %>%
+            collapsibleTreeSummary(
+                hierarchy = c("order", "family", "genus"),
+                root = "Geography",
+                width = "100%",
+                attribute = "Freq",
+                zoomable = FALSE
+            )
     })
 })#END OF SERVER
 
