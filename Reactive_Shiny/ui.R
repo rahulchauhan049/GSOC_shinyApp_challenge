@@ -15,8 +15,8 @@ library(shinycssloaders)
 
 
 # Define UI for application
-a <- read.csv("a.csv")
-country <- read.csv("countrycode.csv")
+columnName <- read.csv("www/csv/columnNames.csv")
+country <- read.csv("www/csv/countrycode.csv")
 
 
 shinyUI(fluidPage(
@@ -202,7 +202,7 @@ shinyUI(fluidPage(
                    selectizeInput(
                      'fields',
                      'Select Attributes to be displayed',
-                     choices = a ,
+                     choices = columnName ,
                      multiple = TRUE
                    ),
                    numericInput(
@@ -280,7 +280,7 @@ shinyUI(fluidPage(
              value = "visualization",
              fluidPage(
                fluidRow(
-                 column(width = 6, style = 'padding: 5px',
+                 column(width = 6, style = 'padding: 5px', numericInput("ndata", "Amount of points showing..", value = 1000),
                         leafletOutput("mymap")%>% withSpinner(color="#0dc5c1")),
                  column(width = 6, style = 'padding: 5px', selectInput("pieselect", "Select Column to be displayed", c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"), selected = "Order")  ,
                         plotlyOutput("pie")%>% withSpinner(color="#0dc5c1"))

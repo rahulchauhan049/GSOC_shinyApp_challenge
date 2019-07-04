@@ -12,71 +12,77 @@ library("collapsibleTree")
 
 
 #import Datasets
-a <- read.csv("a.csv")
-country <- read.csv("countrycode.csv")
+columnName <- read.csv("www/csv/columnNames.csv")
+country <- read.csv("www/csv/countrycode.csv")
 
 shinyServer(function(input, output, session) {
-    
     df <- reactive({
-        tryCatch({
-        df <- read.csv(
-            paste("www/csv/", input$datasetselected, sep = ""),
-            header = input$header1,
-            sep = input$sep1,
-            quote = input$quote1
-        )  %>% 
-            rename(
-                latitude = decimalLatitude,
-                longitude = decimalLongitude)
-        df<-df[!is.na(df$latitude),]
-        df<-df[!is.na(df$longitude),]
-        if(nrow(df)>2000){
-            df <- df[1:1000,]
+        if (input$datatabs == 1) {
+            tryCatch({
+                df <- read.csv(
+                    paste("www/csv/", input$datasetselected, sep = ""),
+                    header = input$header1,
+                    sep = input$sep1,
+                    quote = input$quote1
+                )  %>%
+                    rename(latitude = decimalLatitude,
+                           longitude = decimalLongitude)
+                df <- df[!is.na(df$latitude), ]
+                df <- df[!is.na(df$longitude), ]
+                if (nrow(df) > input$ndata) {
+                    df <- df[1:input$ndata, ]
+                }
+                else{
+                    df
+                }
+                
+            },
+            error = function(e) {
+                # return a safeError if a parsing error occurs
+                stop(safeError(e))
+            })
+        } else if (input$datatabs == 2) {
+            req(input$file1)
+            
+            # when reading semicolon separated files,
+            # having a comma separator causes `read.csv` to error
+            tryCatch({
+                df <- read.csv(
+                    input$file1$datapath,
+                    header = input$header,
+                    sep = input$sep,
+                    quote = input$quote
+                )%>%
+                    rename(latitude = decimalLatitude,
+                           longitude = decimalLongitude)
+                df <- df[!is.na(df$latitude), ]
+                df <- df[!is.na(df$longitude), ]
+                if (nrow(df) > input$ndata) {
+                    df <- df[1:input$ndata, ]
+                }
+                else{
+                    df
+                }
+            },
+            error = function(e) {
+                # return a safeError if a parsing error occurs
+                stop(safeError(e))
+            })
         }
-        else{
-            df
-        }
-        
-    },
-    error = function(e) {
-        # return a safeError if a parsing error occurs
-        stop(safeError(e))
     })
-        
-    })
- 
     
-    output$tableoutput <- DT::renderDataTable({df<-df()
-    if (input$disp1 == "head") {
-        return(head(df))
-    }
-    else {
-        return(df)
-    }
+    
+    output$tableoutput <- DT::renderDataTable({
+        df <- df()
+        if (input$disp1 == "head") {
+            return(head(df))
+        }
+        else {
+            return(df)
+        }
     })
     output$tableupload <- DT::renderDataTable({
-        # input$file1 will be NULL initially. After the user selects
-        # and uploads a file, head of that data file by default,
-        # or all rows if selected, will be shown.
-        
-        req(input$file1)
-        
-        # when reading semicolon separated files,
-        # having a comma separator causes `read.csv` to error
-        tryCatch({
-            df <- read.csv(
-                input$file1$datapath,
-                header = input$header,
-                sep = input$sep,
-                quote = input$quote
-            )
-            df<-na.omit(df)
-        },
-        error = function(e) {
-            # return a safeError if a parsing error occurs
-            stop(safeError(e))
-        })
-        
+        df <- df()
         if (input$disp == "head") {
             return(head(df))
         }
@@ -90,7 +96,7 @@ shinyServer(function(input, output, session) {
     #For select all attritbute in gbif data
     observe({
         if ("SelectAll" %in% input$fields)
-            selected_choices = a[-1, ] # choose all the choices _except_ "Select All"
+            selected_choices = columnName[-1,] # choose all the choices _except_ "Select All"
         else
             selected_choices = input$fields # update the select input with choice selected by user
         updateSelectInput(session, "fields", selected = selected_choices)
@@ -194,71 +200,100 @@ shinyServer(function(input, output, session) {
     })
     
     ###########################################
-            
+    
     shared_data <- SharedData$new(df)
     
     output$mymap <- renderLeaflet({
-
         m <- leaflet(shared_data) %>%
             addTiles() %>% addMarkers() # Add default OpenStreetMap map tiles
         m
     })
-    output$v <- renderText(class( shared_data))
+    output$v <- renderText(class(shared_data))
     output$tb <- DT::renderDataTable(
-        shared_data,options = list(
-            pageLength=4, scrollX='400px', scrollY = "200px"), server = FALSE)
+        shared_data,
+        options = list(
+            pageLength = 4,
+            scrollX = '400px',
+            scrollY = "200px"
+        ),
+        server = FALSE
+    )
     
     #Bar Plot
     output$bar <- renderPlotly({
-        if(input$barselect=="Kingdom"){
-            label <- ~kingdom
-        }else if(input$barselect=="Phylum"){
-            label <- ~phylum
-        }else if(input$barselect=="Family"){
-            label <- ~family
-        }else if(input$barselect=="Genus"){
-            label <- ~genus
-        }else if(input$barselect=="Species"){
-            label <- ~species
-        }else{
-            label <- ~order
+        if (input$barselect == "Kingdom") {
+            label <- ~ kingdom
+        } else if (input$barselect == "Phylum") {
+            label <- ~ phylum
+        } else if (input$barselect == "Family") {
+            label <- ~ family
+        } else if (input$barselect == "Genus") {
+            label <- ~ genus
+        } else if (input$barselect == "Species") {
+            label <- ~ species
+        } else{
+            label <- ~ order
         }
-        plot_ly(data = shared_data, x = label, color = label)})
+        plot_ly(data = shared_data,
+                x = label,
+                color = label)
+    })
     
-    #Pie Chart 
+    #Pie Chart
     output$pie <- renderPlotly({
-        if(input$pieselect=="Kingdom"){
-            label <- ~kingdom
-        }else if(input$pieselect=="Phylum"){
-            label <- ~phylum
-        }else if(input$pieselect=="Family"){
-            label <- ~family
-        }else if(input$pieselect=="Genus"){
-            label <- ~genus
-        }else if(input$pieselect=="Species"){
-            label <- ~species
-        }else{
-            label <- ~order
+        if (input$pieselect == "Kingdom") {
+            label <- ~ kingdom
+        } else if (input$pieselect == "Phylum") {
+            label <- ~ phylum
+        } else if (input$pieselect == "Family") {
+            label <- ~ family
+        } else if (input$pieselect == "Genus") {
+            label <- ~ genus
+        } else if (input$pieselect == "Species") {
+            label <- ~ species
+        } else{
+            label <- ~ order
         }
-        plot_ly(data=shared_data, labels = label, type = 'pie', textposition = 'inside',
-                textinfo = 'label+percent',
-                insidetextfont = list(color = '#FFFFFF'),
-                hoverinfo = 'text') %>%
-            layout(title = paste('Quantity of perticular ',input$pieselect,' in Biodiversity data.'),
-                   xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                   yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+        plot_ly(
+            data = shared_data,
+            labels = label,
+            type = 'pie',
+            textposition = 'inside',
+            textinfo = 'label+percent',
+            insidetextfont = list(color = '#FFFFFF'),
+            hoverinfo = 'text'
+        ) %>%
+            layout(
+                title = paste(
+                    'Quantity of perticular ',
+                    input$pieselect,
+                    ' in Biodiversity data.'
+                ),
+                xaxis = list(
+                    showgrid = FALSE,
+                    zeroline = FALSE,
+                    showticklabels = FALSE
+                ),
+                yaxis = list(
+                    showgrid = FALSE,
+                    zeroline = FALSE,
+                    showticklabels = FALSE
+                )
+            )
         
         
     })
     
     output$tree <- renderCollapsibleTree({
         data <- df()
-        data <- na.omit(data[c("kingdom", "phylum", "order", "family", "genus")])
+        data <-
+            na.omit(data[c("kingdom", "phylum", "order", "family", "genus")])
         data <- arrange(data, family)
         temp <- as.data.frame(table(data["genus"]))
         data <- unique(data)
         temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
-        temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
+        temp <-
+            temp[c("phylum", "order", "family", "genus", "Freq")]
         
         temp %>%
             group_by(phylum, order, family, genus) %>%
@@ -324,4 +359,3 @@ gbif <-
         }
         return(occ[fields])
     }
-
