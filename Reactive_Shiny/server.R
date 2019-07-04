@@ -30,7 +30,12 @@ shinyServer(function(input, output, session) {
                 longitude = decimalLongitude)
         df<-df[!is.na(df$latitude),]
         df<-df[!is.na(df$longitude),]
-        
+        if(nrow(df)>2000){
+            df <- df[1:1000,]
+        }
+        else{
+            df
+        }
         
     },
     error = function(e) {
@@ -203,14 +208,43 @@ shinyServer(function(input, output, session) {
         shared_data,options = list(
             pageLength=4, scrollX='400px', scrollY = "200px"), server = FALSE)
     
+    #Bar Plot
     output$bar <- renderPlotly({
-        plot_ly(data = shared_data, x = ~order, color = ~order)})
+        if(input$barselect=="Kingdom"){
+            label <- ~kingdom
+        }else if(input$barselect=="Phylum"){
+            label <- ~phylum
+        }else if(input$barselect=="Family"){
+            label <- ~family
+        }else if(input$barselect=="Genus"){
+            label <- ~genus
+        }else if(input$barselect=="Species"){
+            label <- ~species
+        }else{
+            label <- ~order
+        }
+        plot_ly(data = shared_data, x = label, color = label)})
+    
+    #Pie Chart 
     output$pie <- renderPlotly({
-        plot_ly(shared_data, labels = ~order, type = 'pie', textposition = 'inside',
+        if(input$pieselect=="Kingdom"){
+            label <- ~kingdom
+        }else if(input$pieselect=="Phylum"){
+            label <- ~phylum
+        }else if(input$pieselect=="Family"){
+            label <- ~family
+        }else if(input$pieselect=="Genus"){
+            label <- ~genus
+        }else if(input$pieselect=="Species"){
+            label <- ~species
+        }else{
+            label <- ~order
+        }
+        plot_ly(data=shared_data, labels = label, type = 'pie', textposition = 'inside',
                 textinfo = 'label+percent',
                 insidetextfont = list(color = '#FFFFFF'),
                 hoverinfo = 'text') %>%
-            layout(title = 'Quantity of perticular family in Biodiversity data.',
+            layout(title = paste('Quantity of perticular ',input$pieselect,' in Biodiversity data.'),
                    xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
                    yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
         
@@ -219,7 +253,7 @@ shinyServer(function(input, output, session) {
     
     output$tree <- renderCollapsibleTree({
         data <- df()
-        data <- na.omit(data[c("phylum", "order", "family", "genus")])
+        data <- na.omit(data[c("kingdom", "phylum", "order", "family", "genus")])
         data <- arrange(data, family)
         temp <- as.data.frame(table(data["genus"]))
         data <- unique(data)
@@ -227,10 +261,10 @@ shinyServer(function(input, output, session) {
         temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
         
         temp %>%
-            group_by(order, family, genus) %>%
+            group_by(phylum, order, family, genus) %>%
             summarize(`Freq` = n()) %>%
             collapsibleTreeSummary(
-                hierarchy = c("order", "family", "genus"),
+                hierarchy = input$tree,
                 root = "Geography",
                 width = "100%",
                 attribute = "Freq",

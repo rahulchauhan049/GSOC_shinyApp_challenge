@@ -11,6 +11,7 @@ library("plotly")
 library(r2d3)
 library(dplyr)
 library("collapsibleTree")
+library(shinycssloaders)
 
 
 # Define UI for application
@@ -280,15 +281,16 @@ shinyUI(fluidPage(
              fluidPage(
                fluidRow(
                  column(width = 6, style = 'padding: 5px',
-                        leafletOutput("mymap")),
-                 column(width = 6, style = 'padding: 5px',
-                        plotlyOutput("pie"))
+                        leafletOutput("mymap")%>% withSpinner(color="#0dc5c1")),
+                 column(width = 6, style = 'padding: 5px', selectInput("pieselect", "Select Column to be displayed", c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"), selected = "Order")  ,
+                        plotlyOutput("pie")%>% withSpinner(color="#0dc5c1"))
                ), fluidRow(
-                 column(width = 6, style = 'padding: 5px',
-                        plotlyOutput("bar")),
+                 column(width = 6, style = 'padding: 5px',selectInput("barselect", "Select Column to be displayed", c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"), selected = "Order"),
+                        plotlyOutput("bar")%>% withSpinner(color="#0dc5c1")),
                  column(
                    width = 6,
-                   style = 'padding: 5px', collapsibleTreeOutput("tree")
+                   style = 'padding: 5px', selectInput("tree", "Select Hierarchy", c("kingdom", "phylum", "order", "family", "genus"),  selected = c("order", "family", "genus"), multiple = TRUE,
+                                                       selectize = TRUE ),  collapsibleTreeOutput("tree")
                  )
                ),DT::dataTableOutput("tb")
              ))
