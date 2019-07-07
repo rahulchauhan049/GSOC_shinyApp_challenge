@@ -280,7 +280,7 @@ shinyUI(fluidPage(
              value = "visualization",
              fluidPage(
                fluidRow(
-                 column(width = 6, style = 'padding: 5px', numericInput("ndata", "Amount of points showing..", value = 1000),
+                 column(width = 6, style = 'padding: 5px',
                         leafletOutput("mymap")%>% withSpinner(color="#0dc5c1")),
                  column(width = 6, style = 'padding: 5px', selectInput("pieselect", "Select Column to be displayed", c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"), selected = "Order")  ,
                         plotlyOutput("pie")%>% withSpinner(color="#0dc5c1"))
@@ -293,6 +293,7 @@ shinyUI(fluidPage(
                                                        selectize = TRUE ),  collapsibleTreeOutput("tree")
                  )
                ),DT::dataTableOutput("tb")
-             ))
-  )
+             )),
+    tabPanel("Fast map sample", value="fastleaflet", leafletOutput("fastmap")
+  ))
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)

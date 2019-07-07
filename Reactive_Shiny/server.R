@@ -10,7 +10,7 @@ library("plotly")
 library(r2d3)
 library("collapsibleTree")
 
-
+options(shiny.maxRequestSize=30*1024^2)
 #import Datasets
 columnName <- read.csv("www/csv/columnNames.csv")
 country <- read.csv("www/csv/countrycode.csv")
@@ -29,13 +29,6 @@ shinyServer(function(input, output, session) {
                            longitude = decimalLongitude)
                 df <- df[!is.na(df$latitude), ]
                 df <- df[!is.na(df$longitude), ]
-                if (nrow(df) > input$ndata) {
-                    df <- df[1:input$ndata, ]
-                }
-                else{
-                    df
-                }
-                
             },
             error = function(e) {
                 # return a safeError if a parsing error occurs
@@ -57,12 +50,6 @@ shinyServer(function(input, output, session) {
                            longitude = decimalLongitude)
                 df <- df[!is.na(df$latitude), ]
                 df <- df[!is.na(df$longitude), ]
-                if (nrow(df) > input$ndata) {
-                    df <- df[1:input$ndata, ]
-                }
-                else{
-                    df
-                }
             },
             error = function(e) {
                 # return a safeError if a parsing error occurs
@@ -204,9 +191,19 @@ shinyServer(function(input, output, session) {
     shared_data <- SharedData$new(df)
     
     output$mymap <- renderLeaflet({
-        m <- leaflet(shared_data) %>%
-            addTiles() %>% addMarkers() # Add default OpenStreetMap map tiles
-        m
+        if(nrow(df())>1800){
+        leaflet(shared_data, options = leafletOptions(preferCanvas = TRUE)) %>%
+            addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
+                updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
+                updateWhenIdle = TRUE           # map won't load new tiles when panning
+            )) %>% addCircles(weight = 0) # Add default OpenStreetMap map tiles
+        }else {
+            leaflet(shared_data, options = leafletOptions(preferCanvas = TRUE)) %>%
+                addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
+                    updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
+                    updateWhenIdle = TRUE           # map won't load new tiles when panning
+                )) %>% addMarkers() # Add default OpenStreetMap map tiles
+        }
     })
     output$v <- renderText(class(shared_data))
     output$tb <- DT::renderDataTable(
@@ -305,6 +302,15 @@ shinyServer(function(input, output, session) {
                 attribute = "Freq",
                 zoomable = FALSE
             )
+    })
+    
+    output$fastmap <- renderLeaflet({
+        leaflet(df(), options = leafletOptions(preferCanvas = TRUE)) %>%
+            addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
+                updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
+                updateWhenIdle = TRUE           # map won't load new tiles when panning
+            )) %>% addCircles(weight = 0) # Add default OpenStreetMap map tiles
+        
     })
 })#END OF SERVER
 
