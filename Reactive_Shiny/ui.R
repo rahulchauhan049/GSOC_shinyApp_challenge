@@ -5,13 +5,13 @@ library("bdvis")
 library("rinat")
 library("shinythemes")
 library("shiny")
-library(leaflet)
-library(crosstalk)
+library("leaflet")
+library("crosstalk")
 library("plotly")
-library(r2d3)
-library(dplyr)
+library("r2d3")
+library("dplyr")
 library("collapsibleTree")
-library(shinycssloaders)
+library("shinycssloaders")
 
 
 # Define UI for application

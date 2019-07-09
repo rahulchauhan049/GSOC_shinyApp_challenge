@@ -62,3 +62,6 @@ hierarchy <- function(data) {
   
   return(temp)
 }
+
+a <-hierarchy(temp)
+temp <- read.csv("../../data/sampledata.csv")
