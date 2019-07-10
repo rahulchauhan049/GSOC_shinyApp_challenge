@@ -308,7 +308,7 @@ shinyServer(function(input, output, session) {
 #Page 4............................................................................
     
     output$rose <- renderPlot({
-        mammals <- read.csv("mammals.csv")
+        mammals <- read.csv("www/csv/mammals.csv")
         indf <- format_bdvis(mammals,source='rgbif')
         names(indf)=gsub("\\.","_",names(indf))
         if("Date_collected" %in% colnames(indf)){

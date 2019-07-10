@@ -299,6 +299,8 @@ shinyUI(fluidPage(
                  )
                ),DT::dataTableOutput("tb")
              )),
-    tabPanel("Other Reactive visualizations", value="page4", plotOutput("rose")
+    tabPanel("Other Reactive visualizations", value="page4", fluidPage(
+      fluidRow(column(width = 4, styple = 'padding: 5px', plotOutput("rose")))
+    )
   ))
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)
