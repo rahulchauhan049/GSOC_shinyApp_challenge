@@ -8,7 +8,11 @@ library("rgbif")
 library("sqldf")
 library("plotrix")
 
-mammals <- read.csv("www/csv/mammals.csv")
+key <- name_backbone(name = "Mammalia")$usageKey
+mammals <-occ_search(taxonKey = key, limit = 10000, hasCoordinate=TRUE, hasGeospatialIssue=FALSE, return = "data")
+
+write.csv(mammals,"www/csv/mammalsLarge.csv")
+mammals <- read.csv("www/csv/hyenaData.csv")
 mammals <- format_bdvis(mammals,source='rgbif')
 
 
@@ -17,7 +21,7 @@ if("Date_collected" %in% colnames(mammals)){
   if(length(which(!is.na(mammals$Date_collected)))==0){
     stop("Date_collected has no data")
   }
-  dayofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%j"))
+  dayofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%d"))
   weekofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%U"))
   monthofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%m"))
   Year_ = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%Y"))
@@ -25,16 +29,22 @@ if("Date_collected" %in% colnames(mammals)){
 } else {
   stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
 }
-a = cbind(mammals["family"],dayofYear,weekofYear,monthofYear,Year_)
-a<-arrange(a,as.numeric(a$dayofYear))
-a<- a[c("family", "dayofYear")]
+a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
+a<-arrange(a,as.numeric(a$monthofYear))
+a<- a[c("genus", "monthofYear")]
+a <- data.frame(table(a)) %>%rename(group = genus,
+                                variable = monthofYear,
+                                value = Freq)
+
+mymonths <- c("1.January","2.February","3.March",
+              "4.April","5.May","6.June",
+              "7.July","8.August","9.September",
+              "10.October","11.November","December")
+a$variable <- mymonths[a$variable]
 
 
-weektab=sqldf("select dayofYear, count(*) as wct from a group by dayofYear")
+ggplot(data=a,aes(x=variable,y=group,fill=value))+
+  geom_tile(colour="black",size=0.1)+
+  coord_polar()+xlab("")+ylab("")
 
-
-ggplot(data=weektab,aes(x=dayofYear,y=wct))+
-  geom_bar(stat="identity")+
-  coord_polar()+
-  scale_fill_brewer(palette="Greens")+xlab("")+ylab("")
 

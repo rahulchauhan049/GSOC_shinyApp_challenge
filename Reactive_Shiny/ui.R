@@ -281,26 +281,64 @@ shinyUI(fluidPage(
                  )
                )
              )),
-    tabPanel("Visualization",
-             value = "visualization",
-             fluidPage(
-               fluidRow(
-                 column(width = 6, style = 'padding: 5px',
-                        leafletOutput("mymap")%>% withSpinner(color="#0dc5c1")),
-                 column(width = 6, style = 'padding: 5px', selectInput("pieselect", "Select Column to be displayed", c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"), selected = "Order")  ,
-                        plotlyOutput("pie")%>% withSpinner(color="#0dc5c1"))
-               ), fluidRow(
-                 column(width = 6, style = 'padding: 5px',selectInput("barselect", "Select Column to be displayed", c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"), selected = "Order"),
-                        plotlyOutput("bar")%>% withSpinner(color="#0dc5c1")),
-                 column(
-                   width = 6,
-                   style = 'padding: 5px', selectInput("tree", "Select Hierarchy", c("kingdom", "phylum", "order", "family", "genus"),  selected = c("order", "family", "genus"), multiple = TRUE,
-                                                       selectize = TRUE ),  collapsibleTreeOutput("tree")
-                 )
-               ),DT::dataTableOutput("tb")
-             )),
-    tabPanel("Other Reactive visualizations", value="page4", fluidPage(
-      fluidRow(column(width = 4, styple = 'padding: 5px', plotOutput("rose")))
-    )
-  ))
+    tabPanel(
+      "Visualization",
+      value = "visualization",
+      fluidPage(
+        fluidRow(
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            leafletOutput("mymap") %>% withSpinner(color = "#0dc5c1")
+          ),
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            selectInput(
+              "pieselect",
+              "Select Column to be displayed",
+              c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"),
+              selected = "Order"
+            )  ,
+            plotlyOutput("pie") %>% withSpinner(color = "#0dc5c1")
+          )
+        ),
+        fluidRow(
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            selectInput(
+              "barselect",
+              "Select Column to be displayed",
+              c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"),
+              selected = "Order"
+            ),
+            plotlyOutput("bar") %>% withSpinner(color = "#0dc5c1")
+          ),
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            selectInput(
+              "tree",
+              "Select Hierarchy",
+              c("kingdom", "phylum", "order", "family", "genus"),
+              selected = c("order", "family", "genus"),
+              multiple = TRUE,
+              selectize = TRUE
+            ),
+            collapsibleTreeOutput("tree")
+          )
+        ),
+        DT::dataTableOutput("tb")
+      )
+    ),
+    tabPanel("Other Reactive visualizations", value = "page4", fluidPage(fluidRow(
+      column(width = 6, styple = 'padding: 5px', plotOutput("timebars")),
+      column(width = 6, style = 'padding: 5px', plotOutput("timerose"))
+    ),fluidRow(
+      column(width = 4, style = 'padding: 5px', plotOutput("monthrose")),
+      column(width = 4, style = 'padding: 5px', plotOutput("monthtimebars")),
+      column(width = 4, style = 'padding: 5px', plotOutput("monthtimerose"))
+    )))
+  )
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)
