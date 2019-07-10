@@ -15,6 +15,7 @@ options(shiny.maxRequestSize=30*1024^2)
 columnName <- read.csv("www/csv/columnNames.csv")
 country <- read.csv("www/csv/countrycode.csv")
 
+
 shinyServer(function(input, output, session) {
     df <- reactive({
         if (input$datatabs == 1) {
@@ -304,14 +305,40 @@ shinyServer(function(input, output, session) {
             )
     })
     
-    output$fastmap <- renderLeaflet({
-        leaflet(df(), options = leafletOptions(preferCanvas = TRUE)) %>%
-            addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
-                updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
-                updateWhenIdle = TRUE           # map won't load new tiles when panning
-            )) %>% addCircles(weight = 0) # Add default OpenStreetMap map tiles
+#Page 4............................................................................
+    
+    output$rose <- renderPlot({
+        mammals <- read.csv("mammals.csv")
+        indf <- format_bdvis(mammals,source='rgbif')
+        names(indf)=gsub("\\.","_",names(indf))
+        if("Date_collected" %in% colnames(indf)){
+            if(length(which(!is.na(indf$Date_collected)))==0){
+                stop("Date_collected has no data")
+            }
+            dayofYear = as.numeric(strftime(as.Date(indf$Date_collected,na.rm=T), format = "%j"))
+            weekofYear = as.numeric(strftime(as.Date(indf$Date_collected,na.rm=T), format = "%U"))
+            monthofYear = as.numeric(strftime(as.Date(indf$Date_collected,na.rm=T), format = "%m"))
+            Year_ = as.numeric(strftime(as.Date(indf$Date_collected,na.rm=T), format = "%Y"))
+            
+        } else {
+            stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
+        }
+        a = cbind(indf["family"],dayofYear,weekofYear,monthofYear,Year_)
+        weektab=sqldf("select dayofYear, count(*) as wct from a group by dayofYear")
         
+        
+        ggplot(data=weektab,aes(x=dayofYear,y=wct))+
+            geom_bar(stat="identity")+
+            coord_polar()+
+            scale_fill_brewer(palette="Greens")+xlab("")+ylab("")
     })
+    
+    
+    
+    
+    
+    
+    
 })#END OF SERVER
 
 #Data Download...........................................................................

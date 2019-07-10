@@ -12,6 +12,11 @@ library("r2d3")
 library("dplyr")
 library("collapsibleTree")
 library("shinycssloaders")
+library("sqldf")
+library("plotrix")
+library("highcharter")
+library("tidyr")
+library("ggplot2")
 
 
 # Define UI for application
@@ -294,6 +299,6 @@ shinyUI(fluidPage(
                  )
                ),DT::dataTableOutput("tb")
              )),
-    tabPanel("Fast map sample", value="fastleaflet", leafletOutput("fastmap")
+    tabPanel("Other Reactive visualizations", value="page4", plotOutput("rose")
   ))
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)
