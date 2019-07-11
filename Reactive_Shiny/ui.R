@@ -332,15 +332,44 @@ shinyUI(fluidPage(
         DT::dataTableOutput("tb")
       )
     ),
-    tabPanel("Other Reactive visualizations", value = "page4", fluidPage(fluidRow(
-      column(width = 6, styple = 'padding: 5px', plotOutput("timebars")),
-      column(width = 6, style = 'padding: 5px', plotOutput("timerose"))
-    ),fluidRow(
-      column(width = 4, style = 'padding: 5px', plotOutput("monthrose")),
-      column(width = 4, style = 'padding: 5px', plotOutput("monthtimebars")),
-      column(width = 4, style = 'padding: 5px', plotOutput("monthtimerose"))
-    ),fluidRow(
-      column(width = 12, style = 'padding: 5px', plotlyOutput("yearlines"))
-    )))
+    tabPanel(
+      "Temporal visualizations",
+      value = "page4",
+      fluidPage(
+        fluidRow(
+          column(width = 6, style = "padding: 5px", selectizeInput("temporaldataset","Select Dataset", c("Hyena"="hyenaData.csv", "Mammals"="mammalsLarge.csv"))),
+          column(width = 6, style = 'padding: 5px', selectizeInput("temporalcolumn", "Select Column", c("Order"="order", "Family"="family", "Genus"="genus", "Species"="species")))
+        ),
+        fluidRow(
+          column(width = 6, styple = 'padding: 5px', plotOutput("timebars")),
+          column(width = 6, style = 'padding: 5px', plotOutput("timerose"))
+        ),
+        fluidRow(
+          column(width = 4, style = 'padding: 5px', plotOutput("monthrose")),
+          column(
+            width = 4,
+            style = 'padding: 5px',
+            plotOutput("monthtimebars")
+          ),
+          column(
+            width = 4,
+            style = 'padding: 5px',
+            plotOutput("monthtimerose")
+          )
+        ),
+        fluidRow(
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            plotlyOutput("yearlines")
+          ),
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            plotlyOutput("yearlines3d")
+          )
+        )
+      )
+    )
   )
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)

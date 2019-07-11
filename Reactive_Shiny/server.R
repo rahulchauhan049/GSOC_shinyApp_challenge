@@ -306,8 +306,8 @@ shinyServer(function(input, output, session) {
     })
     
 #Page 4............................................................................
-    daydata <- reactive({
-        mammals <- read.csv("www/csv/hyenaData.csv")
+    timedata <- reactive({
+        mammals <- read.csv(paste("www/csv/", input$temporaldataset, sep = ""))
         mammals <- format_bdvis(mammals,source='rgbif')
         
         
@@ -324,76 +324,33 @@ shinyServer(function(input, output, session) {
         } else {
             stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
         }
-        a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
-        a<-arrange(a,as.numeric(a$dayofYear))
-        a<- a[c("genus", "dayofYear")]
-        a <- data.frame(table(a)) %>%rename(group = genus,
-                                            variable = dayofYear,
-                                            value = Freq)
+        a = cbind(mammals[c("order", "genus", "family", "species")],dayofYear,weekofYear,monthofYear,Year_)
         return(a)
     })
     
-    monthdata <- reactive({
-        mammals <- read.csv("www/csv/hyenaData.csv")
-        mammals <- format_bdvis(mammals,source='rgbif')
-        
-        
-        names(mammals)=gsub("\\.","_",names(mammals))
-        if("Date_collected" %in% colnames(mammals)){
-            if(length(which(!is.na(mammals$Date_collected)))==0){
-                stop("Date_collected has no data")
-            }
-            dayofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%d"))
-            weekofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%U"))
-            monthofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%m"))
-            Year_ = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%Y"))
-            
-        } else {
-            stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
-        }
-        a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
-        a<-arrange(a,as.numeric(a$monthofYear))
-        a<- a[c("genus", "monthofYear")]
-        a <- data.frame(table(a)) %>%rename(group = genus,
-                                            variable = monthofYear,
-                                            value = Freq)
-        return(a)
-    })
     
-    yearData <- reactive({
-        mammals <- read.csv("www/csv/hyenaData.csv")
-        mammals <- format_bdvis(mammals,source='rgbif')
-        
-        
-        names(mammals)=gsub("\\.","_",names(mammals))
-        if("Date_collected" %in% colnames(mammals)){
-            if(length(which(!is.na(mammals$Date_collected)))==0){
-                stop("Date_collected has no data")
-            }
-            dayofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%d"))
-            weekofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%U"))
-            monthofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%m"))
-            Year_ = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%Y"))
-            
-        } else {
-            stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
-        }
-        a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
-        a<-arrange(a,as.numeric(a$Year_))
-        a<- a[c("genus", "Year_")]
-        a <- data.frame(table(a)) %>%rename(group = genus,
-                                            variable = Year_,
-                                            value = Freq)
-        return(a)
-    })
     
     output$timebars <- renderPlot({
-        ggplot(data=daydata(),aes(x=variable,y=value,fill=group))+
+        a <- timedata()
+        a<-arrange(a,as.numeric(a$dayofYear))
+        a<- a[c(input$temporalcolumn, "dayofYear")]
+        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
+                                            variable = dayofYear,
+                                            value = Freq)
+        
+        ggplot(data=a,aes(x=variable,y=value,fill=group))+
             geom_bar(stat="identity")+xlab("Days")+ylab("Quantity")
     })
     
     output$timerose <- renderPlot({
-        ggplot(data=daydata(),aes(x=variable,y=value,fill=group))+
+        a <- timedata()
+        a<-arrange(a,as.numeric(a$dayofYear))
+        a<- a[c(input$temporalcolumn, "dayofYear")]
+        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
+                                            variable = dayofYear,
+                                            value = Freq)
+        
+        ggplot(data=a,aes(x=variable,y=value,fill=group))+
             geom_bar(stat="identity")+
             coord_polar()+xlab("")+ylab("")
     })
@@ -401,19 +358,40 @@ shinyServer(function(input, output, session) {
     
     #Month data........................................
     output$monthrose <- renderPlot({
-        ggplot(data=monthdata(),aes(x=variable,y=group,fill=value))+
+        a <- timedata()
+        a<-arrange(a,as.numeric(a$monthofYear))
+        a<- a[c(input$temporalcolumn, "monthofYear")]
+        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
+                                            variable = monthofYear,
+                                            value = Freq)
+        
+        ggplot(data=a,aes(x=variable,y=group,fill=value))+
             geom_tile(colour="black",size=0.1)+
             coord_polar()+xlab("")+ylab("")
         
     })
     
     output$monthtimebars <- renderPlot({
-        ggplot(data=monthdata(),aes(x=variable,y=value,fill=group))+
+        a <- timedata()
+        a<-arrange(a,as.numeric(a$monthofYear))
+        a<- a[c(input$temporalcolumn, "monthofYear")]
+        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
+                                            variable = monthofYear,
+                                            value = Freq)
+        
+        ggplot(data=a,aes(x=variable,y=value,fill=group))+
             geom_bar(stat="identity")+xlab("Days")+ylab("Quantity")
     })
     
     output$monthtimerose <- renderPlot({
-        ggplot(data=monthdata(),aes(x=variable,y=value,fill=group))+
+        a <- timedata()
+        a<-arrange(a,as.numeric(a$monthofYear))
+        a<- a[c(input$temporalcolumn, "monthofYear")]
+        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
+                                            variable = monthofYear,
+                                            value = Freq)
+        
+        ggplot(data=a,aes(x=variable,y=value,fill=group))+
             geom_bar(stat="identity")+
             coord_polar()+xlab("")+ylab("")
     })
@@ -421,8 +399,25 @@ shinyServer(function(input, output, session) {
     #year Plots..................................
     
     output$yearlines <- renderPlotly({
-        plot_ly(yearData(), x = ~variable, y = ~value, color = ~group) %>%
+        a <- timedata()
+        a<-arrange(a,as.numeric(a$Year_))
+        a<- a[c(input$temporalcolumn, "Year_")]
+        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
+                                            variable = Year_,
+                                            value = Freq)
+        
+        plot_ly(a, x = ~variable, y = ~value, color = ~group) %>%
             add_lines()
+    })
+    
+    output$yearlines3d <- renderPlotly({
+        a <- timedata()
+        a<-arrange(a,as.numeric(a$Year_))
+        a<- a[c(input$temporalcolumn, "Year_")]
+        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
+                                            variable = Year_,
+                                            value = Freq)
+        plot_ly(a, x = ~variable, y = ~value, z = ~group, type = 'scatter3d', mode = 'lines', color = ~group)
     })
     
     

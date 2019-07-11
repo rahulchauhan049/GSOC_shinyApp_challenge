@@ -10,7 +10,8 @@ library("plotrix")
 
 key <- name_backbone(name = "Mammalia")$usageKey
 mammals <-occ_search(taxonKey = key, limit = 10000, hasCoordinate=TRUE, hasGeospatialIssue=FALSE, return = "data")
-
+mammals <- read.csv("www/csv/mammalsLarge.csv")
+mammals <- mammals[1:1000,]
 write.csv(mammals,"www/csv/mammalsLarge.csv")
 mammals <- read.csv("www/csv/hyenaData.csv")
 mammals <- format_bdvis(mammals,source='rgbif')
@@ -37,5 +38,4 @@ a <- data.frame(table(a)) %>%rename(group = genus,
                                 value = Freq)
 
 
-plot_ly(a, x = ~variable, y = ~value, color = ~group) %>%
-  add_lines()
+plot_ly(a, x = ~variable, y = ~value, z = ~group, type = 'scatter3d', mode = 'lines', color = ~group)
