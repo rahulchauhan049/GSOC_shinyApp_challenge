@@ -339,6 +339,8 @@ shinyUI(fluidPage(
       column(width = 4, style = 'padding: 5px', plotOutput("monthrose")),
       column(width = 4, style = 'padding: 5px', plotOutput("monthtimebars")),
       column(width = 4, style = 'padding: 5px', plotOutput("monthtimerose"))
+    ),fluidRow(
+      column(width = 12, style = 'padding: 5px', plotlyOutput("yearlines"))
     )))
   )
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)

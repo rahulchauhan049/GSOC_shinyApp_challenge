@@ -360,6 +360,33 @@ shinyServer(function(input, output, session) {
         return(a)
     })
     
+    yearData <- reactive({
+        mammals <- read.csv("www/csv/hyenaData.csv")
+        mammals <- format_bdvis(mammals,source='rgbif')
+        
+        
+        names(mammals)=gsub("\\.","_",names(mammals))
+        if("Date_collected" %in% colnames(mammals)){
+            if(length(which(!is.na(mammals$Date_collected)))==0){
+                stop("Date_collected has no data")
+            }
+            dayofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%d"))
+            weekofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%U"))
+            monthofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%m"))
+            Year_ = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%Y"))
+            
+        } else {
+            stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
+        }
+        a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
+        a<-arrange(a,as.numeric(a$Year_))
+        a<- a[c("genus", "Year_")]
+        a <- data.frame(table(a)) %>%rename(group = genus,
+                                            variable = Year_,
+                                            value = Freq)
+        return(a)
+    })
+    
     output$timebars <- renderPlot({
         ggplot(data=daydata(),aes(x=variable,y=value,fill=group))+
             geom_bar(stat="identity")+xlab("Days")+ylab("Quantity")
@@ -391,6 +418,12 @@ shinyServer(function(input, output, session) {
             coord_polar()+xlab("")+ylab("")
     })
     
+    #year Plots..................................
+    
+    output$yearlines <- renderPlotly({
+        plot_ly(yearData(), x = ~variable, y = ~value, color = ~group) %>%
+            add_lines()
+    })
     
     
 })#END OF SERVER

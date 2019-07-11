@@ -30,21 +30,12 @@ if("Date_collected" %in% colnames(mammals)){
   stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
 }
 a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
-a<-arrange(a,as.numeric(a$monthofYear))
-a<- a[c("genus", "monthofYear")]
+a<-arrange(a,as.numeric(a$Year_))
+a<- a[c("genus", "Year_")]
 a <- data.frame(table(a)) %>%rename(group = genus,
-                                variable = monthofYear,
+                                variable = Year_,
                                 value = Freq)
 
-mymonths <- c("1.January","2.February","3.March",
-              "4.April","5.May","6.June",
-              "7.July","8.August","9.September",
-              "10.October","11.November","December")
-a$variable <- mymonths[a$variable]
 
-
-ggplot(data=a,aes(x=variable,y=group,fill=value))+
-  geom_tile(colour="black",size=0.1)+
-  coord_polar()+xlab("")+ylab("")
-
-
+plot_ly(a, x = ~variable, y = ~value, color = ~group) %>%
+  add_lines()
