@@ -20,6 +20,8 @@ dep_bins <- bin_fixed(dep_time, bins = 150)
 arr_stats <- compute_stat(arr_bins, arr_time)
 dep_stats <- compute_stat(dep_bins, dep_time)
 
+mam <- read.csv("www/csv/mammalsLarge.csv")
+
 options(shiny.maxRequestSize=30*1024^2)
 #import Datasets
 columnName <- read.csv("www/csv/columnNames.csv")
@@ -430,7 +432,7 @@ shinyServer(function(input, output, session) {
         plot_ly(a, x = ~variable, y = ~value, z = ~group, type = 'scatter3d', mode = 'lines', color = ~group)
     })
     
-    #Practice for Reactive
+    #Practice for Reactive....................................
     output$arr_time <- renderPlotly({
         plot_ly(arr_stats, source = "arr_time") %>%
             add_bars(x = ~xmin_, y = ~count_)
@@ -451,6 +453,46 @@ shinyServer(function(input, output, session) {
             plotlyProxyInvoke(p, "restyle", "y", list(dep_count))
         }
     })
+    
+    observe({
+        brush <- event_data("plotly_brushing", source = "dep_time")
+        p <- plotlyProxy("arr_time")
+        if (is.null(brush)) {
+            plotlyProxyInvoke(p, "restyle", "y", list(arr_stats$count_))
+        } else {
+            arr_time_filter <- arr_time[between(arr_time, brush$x[1], brush$x[2])]
+            arr_count <- compute_stat(arr_bins, arr_time_filter)$count_
+            plotlyProxyInvoke(p, "restyle", "y", list(arr_count))
+        }
+    })
+    
+    
+    output$fifthpie <- renderPlotly({
+        plot_ly(y = mam$family, source = "reactiveBars")
+    })
+    
+    output$fifthmap <- renderLeaflet({
+         leaflet(mam, options = leafletOptions(preferCanvas = TRUE)) %>%
+            addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
+                updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
+                updateWhenIdle = TRUE           # map won't load new tiles when panning
+            )) %>% addMarkers(~decimalLongitude, ~decimalLatitude) # Add default OpenStreetMap map tiles
+        
+    })
+    
+    
+    observe({
+        select <- event_data("plotly_selected", source = "reactiveBars")
+        newData <- mam %>% filter(family %in% select$y)
+        leafletProxy("fifthmap", data = newData) %>% clearMarkers() %>%
+        addMarkers(~decimalLongitude, ~decimalLatitude)
+        })
+    
+        output$fifthtext <- renderPrint({
+            a<- event_data("plotly_selected", source = "reactiveBars")
+         return(a$y)
+        })
+    
 })#END OF SERVER
 
 #Data Download...........................................................................

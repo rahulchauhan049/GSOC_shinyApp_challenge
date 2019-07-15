@@ -41,3 +41,8 @@ a <- data.frame(table(a)) %>%rename(group = genus,
 
 
 plot_ly(a, x = ~variable, y = ~value, z = ~group, type = 'scatter3d', mode = 'lines', color = ~group)
+
+a <- data.frame(y=c("Mustelidae","Felidae"))
+newData <- mam %>% filter(family %in% a$y)
+
+                          

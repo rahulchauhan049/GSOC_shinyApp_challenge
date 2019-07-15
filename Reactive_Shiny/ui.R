@@ -395,10 +395,18 @@ shinyUI(fluidPage(
         )
       )
     ),
-    tabPanel("Practice for reactive", value = "page5",
-             fluidPage(fluidRow(
-               column(width = 6, style = 'padding: 5px', plotlyOutput("arr_time")),
-               column(width = 6, style = 'padding: 5px', plotlyOutput("dep_time"))
-             )))
+    tabPanel(
+      "Practice for reactive",
+      value = "page5",
+      fluidPage(fluidRow(
+        column(width = 6, style = 'padding: 5px', plotlyOutput("arr_time")),
+        column(width = 6, style = 'padding: 5px', plotlyOutput("dep_time"))
+      ),
+      fluidRow(
+        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthpie")),
+        column(width = 6, style = 'padding: 5px', leafletOutput("fifthmap")),
+        verbatimTextOutput("fifthtext")
+      ))
+    )
   )
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)
