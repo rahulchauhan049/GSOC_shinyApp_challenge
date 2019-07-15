@@ -17,6 +17,9 @@ library("plotrix")
 library("highcharter")
 library("tidyr")
 library("ggplot2")
+library(nycflights13)
+library(ggstat)
+
 
 
 # Define UI for application
@@ -337,8 +340,29 @@ shinyUI(fluidPage(
       value = "page4",
       fluidPage(
         fluidRow(
-          column(width = 6, style = "padding: 5px", selectizeInput("temporaldataset","Select Dataset", c("Hyena"="hyenaData.csv", "Mammals"="mammalsLarge.csv"))),
-          column(width = 6, style = 'padding: 5px', selectizeInput("temporalcolumn", "Select Column", c("Order"="order", "Family"="family", "Genus"="genus", "Species"="species")))
+          column(
+            width = 6,
+            style = "padding: 5px",
+            selectizeInput(
+              "temporaldataset",
+              "Select Dataset",
+              c("Hyena" = "hyenaData.csv", "Mammals" = "mammalsLarge.csv")
+            )
+          ),
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            selectizeInput(
+              "temporalcolumn",
+              "Select Column",
+              c(
+                "Order" = "order",
+                "Family" = "family",
+                "Genus" = "genus",
+                "Species" = "species"
+              )
+            )
+          )
         ),
         fluidRow(
           column(width = 6, styple = 'padding: 5px', plotOutput("timebars")),
@@ -370,6 +394,11 @@ shinyUI(fluidPage(
           )
         )
       )
-    )
+    ),
+    tabPanel("Practice for reactive", value = "page5",
+             fluidPage(fluidRow(
+               column(width = 6, style = 'padding: 5px', plotlyOutput("arr_time")),
+               column(width = 6, style = 'padding: 5px', plotlyOutput("dep_time"))
+             )))
   )
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)

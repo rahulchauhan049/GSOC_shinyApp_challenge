@@ -11,7 +11,9 @@ library("plotrix")
 key <- name_backbone(name = "Mammalia")$usageKey
 mammals <-occ_search(taxonKey = key, limit = 10000, hasCoordinate=TRUE, hasGeospatialIssue=FALSE, return = "data")
 mammals <- read.csv("www/csv/mammalsLarge.csv")
-mammals <- mammals[1:1000,]
+mammals[which(names(mammals) %in% "rights") *-1]
+
+
 write.csv(mammals,"www/csv/mammalsLarge.csv")
 mammals <- read.csv("www/csv/hyenaData.csv")
 mammals <- format_bdvis(mammals,source='rgbif')

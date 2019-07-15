@@ -9,6 +9,16 @@
 # library("plotly")
 # library(r2d3)
 # library("collapsibleTree")
+library(nycflights13)
+library(ggstat)
+
+flights <- flights
+arr_time <- flights$arr_time
+dep_time <- flights$dep_time
+arr_bins <- bin_fixed(arr_time, bins = 150)
+dep_bins <- bin_fixed(dep_time, bins = 150)
+arr_stats <- compute_stat(arr_bins, arr_time)
+dep_stats <- compute_stat(dep_bins, dep_time)
 
 options(shiny.maxRequestSize=30*1024^2)
 #import Datasets
@@ -420,7 +430,27 @@ shinyServer(function(input, output, session) {
         plot_ly(a, x = ~variable, y = ~value, z = ~group, type = 'scatter3d', mode = 'lines', color = ~group)
     })
     
+    #Practice for Reactive
+    output$arr_time <- renderPlotly({
+        plot_ly(arr_stats, source = "arr_time") %>%
+            add_bars(x = ~xmin_, y = ~count_)
+    })
+    output$dep_time <- renderPlotly({
+        plot_ly(dep_stats, source = "dep_time") %>%
+            add_bars(x = ~xmin_, y = ~count_)
     
+    })
+    observe({
+        brush <- event_data("plotly_brushing", source = "arr_time")
+        p <- plotlyProxy("dep_time")
+        if (is.null(brush)) {
+            plotlyProxyInvoke(p, "restyle", "y", list(dep_stats$count_))
+        } else {
+            dep_time_filter <- dep_time[between(dep_time, brush$x[1], brush$x[2])]
+            dep_count <- compute_stat(dep_bins, dep_time_filter)$count_
+            plotlyProxyInvoke(p, "restyle", "y", list(dep_count))
+        }
+    })
 })#END OF SERVER
 
 #Data Download...........................................................................
