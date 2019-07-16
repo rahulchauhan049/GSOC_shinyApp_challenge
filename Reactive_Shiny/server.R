@@ -592,21 +592,54 @@ shinyServer(function(input, output, session) {
         }
     })
     
-    # observe({
-    #     select <- event_data("plotly_hover", source = "reactiveBars")
-    #     newData <- mam %>% filter(family %in% select$y)
-    #     if (is.null(select)) {
-    #         leafletProxy("fifthmap", data = mam) %>% clearMarkers() %>%
-    #             addMarkers( ~ decimalLongitude, ~ decimalLatitude)
-    #     } else{
-    #         leafletProxy("fifthmap", data = newData) %>% clearMarkers() %>%
-    #             addMarkers( ~ decimalLongitude, ~ decimalLatitude)
-    #     }
-    # })
     
     output$fifthtext <- renderPrint({
         a <- event_data("plotly_click", source = "reactiveBars")
         return(a$y)
+    })
+    
+    #Time.......................
+    output$fifthmonth <- renderPlotly({
+        a <- timedata()
+        a <- arrange(a, as.numeric(a$dayofYear))
+        a <- a[c(input$temporalcolumn, "dayofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = dayofYear,
+                value = Freq
+            )
+        
+        ggplot(data = a, source = 'reactiveMonth', aes(
+            x = variable,
+            y = value,
+            fill = group
+        )) +
+            geom_bar(stat = "identity") + xlab("Month") + ylab("Quantity")
+    })
+    
+    output$fifthday <- renderPlotly({
+        a <- timedata()
+        a <- arrange(a, as.numeric(a$monthofYear))
+        a <- a[c(input$temporalcolumn, "monthofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = monthofYear,
+                value = Freq
+            )
+        
+        ggplot(data = a, aes(
+            x = variable,
+            y = value,
+            fill = group
+        )) +
+            geom_bar(stat = "identity") + xlab("Days") + ylab("Quantity")
+    })
+    
+    output$fifthtext2 <- renderPrint({
+        a <- event_data("plotly_selected", source = "reactiveMonth")
+        return(a)
     })
     
 })#END OF SERVER

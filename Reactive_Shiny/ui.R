@@ -406,6 +406,11 @@ shinyUI(fluidPage(
         column(width = 6, style = 'padding: 5px', plotlyOutput("fifthpie")),
         column(width = 6, style = 'padding: 5px', leafletOutput("fifthmap")),
         verbatimTextOutput("fifthtext")
+      ),
+      fluidRow(
+        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthday")),
+        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthmonth")),
+        verbatimTextOutput("fifthtext2")
       ))
     )
   )
