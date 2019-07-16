@@ -22,7 +22,7 @@ dep_stats <- compute_stat(dep_bins, dep_time)
 
 mam <- read.csv("www/csv/mammalsLarge.csv")
 
-options(shiny.maxRequestSize=30*1024^2)
+options(shiny.maxRequestSize = 30 * 1024 ^ 2)
 #import Datasets
 columnName <- read.csv("www/csv/columnNames.csv")
 country <- read.csv("www/csv/countrycode.csv")
@@ -40,8 +40,8 @@ shinyServer(function(input, output, session) {
                 )  %>%
                     rename(latitude = decimalLatitude,
                            longitude = decimalLongitude)
-                df <- df[!is.na(df$latitude), ]
-                df <- df[!is.na(df$longitude), ]
+                df <- df[!is.na(df$latitude),]
+                df <- df[!is.na(df$longitude),]
             },
             error = function(e) {
                 # return a safeError if a parsing error occurs
@@ -58,11 +58,11 @@ shinyServer(function(input, output, session) {
                     header = input$header,
                     sep = input$sep,
                     quote = input$quote
-                )%>%
+                ) %>%
                     rename(latitude = decimalLatitude,
                            longitude = decimalLongitude)
-                df <- df[!is.na(df$latitude), ]
-                df <- df[!is.na(df$longitude), ]
+                df <- df[!is.na(df$latitude),]
+                df <- df[!is.na(df$longitude),]
             },
             error = function(e) {
                 # return a safeError if a parsing error occurs
@@ -96,7 +96,7 @@ shinyServer(function(input, output, session) {
     #For select all attritbute in gbif data
     observe({
         if ("SelectAll" %in% input$fields)
-            selected_choices = columnName[-1,] # choose all the choices _except_ "Select All"
+            selected_choices = columnName[-1, ] # choose all the choices _except_ "Select All"
         else
             selected_choices = input$fields # update the select input with choice selected by user
         updateSelectInput(session, "fields", selected = selected_choices)
@@ -204,18 +204,26 @@ shinyServer(function(input, output, session) {
     shared_data <- SharedData$new(df)
     
     output$mymap <- renderLeaflet({
-        if(nrow(df())>1800){
-        leaflet(shared_data, options = leafletOptions(preferCanvas = TRUE)) %>%
-            addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
-                updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
-                updateWhenIdle = TRUE           # map won't load new tiles when panning
-            )) %>% addCircles(weight = 0) # Add default OpenStreetMap map tiles
-        }else {
+        if (nrow(df()) > 1800) {
             leaflet(shared_data, options = leafletOptions(preferCanvas = TRUE)) %>%
-                addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
-                    updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
-                    updateWhenIdle = TRUE           # map won't load new tiles when panning
-                )) %>% addMarkers() # Add default OpenStreetMap map tiles
+                addProviderTiles(
+                    providers$Esri.WorldGrayCanvas,
+                    options = providerTileOptions(
+                        updateWhenZooming = FALSE,
+                        # map won't update tiles until zoom is done
+                        updateWhenIdle = TRUE           # map won't load new tiles when panning
+                    )
+                ) %>% addCircles(weight = 0) # Add default OpenStreetMap map tiles
+        } else {
+            leaflet(shared_data, options = leafletOptions(preferCanvas = TRUE)) %>%
+                addProviderTiles(
+                    providers$Esri.WorldGrayCanvas,
+                    options = providerTileOptions(
+                        updateWhenZooming = FALSE,
+                        # map won't update tiles until zoom is done
+                        updateWhenIdle = TRUE           # map won't load new tiles when panning
+                    )
+                ) %>% addMarkers() # Add default OpenStreetMap map tiles
         }
     })
     output$v <- renderText(class(shared_data))
@@ -317,26 +325,41 @@ shinyServer(function(input, output, session) {
             )
     })
     
-#Page 4............................................................................
+    #Page 4............................................................................
     timedata <- reactive({
-        mammals <- read.csv(paste("www/csv/", input$temporaldataset, sep = ""))
-        mammals <- format_bdvis(mammals,source='rgbif')
+        mammals <-
+            read.csv(paste("www/csv/", input$temporaldataset, sep = ""))
+        mammals <- format_bdvis(mammals, source = 'rgbif')
         
         
-        names(mammals)=gsub("\\.","_",names(mammals))
-        if("Date_collected" %in% colnames(mammals)){
-            if(length(which(!is.na(mammals$Date_collected)))==0){
+        names(mammals) = gsub("\\.", "_", names(mammals))
+        if ("Date_collected" %in% colnames(mammals)) {
+            if (length(which(!is.na(mammals$Date_collected))) == 0) {
                 stop("Date_collected has no data")
             }
-            dayofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%d"))
-            weekofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%U"))
-            monthofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%m"))
-            Year_ = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%Y"))
+            dayofYear = as.numeric(strftime(
+                as.Date(mammals$Date_collected, na.rm = T),
+                format = "%d"
+            ))
+            weekofYear = as.numeric(strftime(
+                as.Date(mammals$Date_collected, na.rm = T),
+                format = "%U"
+            ))
+            monthofYear = as.numeric(strftime(
+                as.Date(mammals$Date_collected, na.rm = T),
+                format = "%m"
+            ))
+            Year_ = as.numeric(strftime(
+                as.Date(mammals$Date_collected, na.rm = T),
+                format = "%Y"
+            ))
             
         } else {
-            stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
+            stop(
+                "Date_collected not found in data. Please use format_bdvis() to fix the problem"
+            )
         }
-        a = cbind(mammals[c("order", "genus", "family", "species")],dayofYear,weekofYear,monthofYear,Year_)
+        a = cbind(mammals[c("order", "genus", "family", "species")], dayofYear, weekofYear, monthofYear, Year_)
         return(a)
     })
     
@@ -344,103 +367,157 @@ shinyServer(function(input, output, session) {
     
     output$timebars <- renderPlot({
         a <- timedata()
-        a<-arrange(a,as.numeric(a$dayofYear))
-        a<- a[c(input$temporalcolumn, "dayofYear")]
-        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
-                                            variable = dayofYear,
-                                            value = Freq)
+        a <- arrange(a, as.numeric(a$dayofYear))
+        a <- a[c(input$temporalcolumn, "dayofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = dayofYear,
+                value = Freq
+            )
         
-        ggplot(data=a,aes(x=variable,y=value,fill=group))+
-            geom_bar(stat="identity")+xlab("Days")+ylab("Quantity")
+        ggplot(data = a, aes(
+            x = variable,
+            y = value,
+            fill = group
+        )) +
+            geom_bar(stat = "identity") + xlab("Days") + ylab("Quantity")
     })
     
     output$timerose <- renderPlot({
         a <- timedata()
-        a<-arrange(a,as.numeric(a$dayofYear))
-        a<- a[c(input$temporalcolumn, "dayofYear")]
-        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
-                                            variable = dayofYear,
-                                            value = Freq)
+        a <- arrange(a, as.numeric(a$dayofYear))
+        a <- a[c(input$temporalcolumn, "dayofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = dayofYear,
+                value = Freq
+            )
         
-        ggplot(data=a,aes(x=variable,y=value,fill=group))+
-            geom_bar(stat="identity")+
-            coord_polar()+xlab("")+ylab("")
+        ggplot(data = a, aes(
+            x = variable,
+            y = value,
+            fill = group
+        )) +
+            geom_bar(stat = "identity") +
+            coord_polar() + xlab("") + ylab("")
     })
     
     
     #Month data........................................
     output$monthrose <- renderPlot({
         a <- timedata()
-        a<-arrange(a,as.numeric(a$monthofYear))
-        a<- a[c(input$temporalcolumn, "monthofYear")]
-        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
-                                            variable = monthofYear,
-                                            value = Freq)
+        a <- arrange(a, as.numeric(a$monthofYear))
+        a <- a[c(input$temporalcolumn, "monthofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = monthofYear,
+                value = Freq
+            )
         
-        ggplot(data=a,aes(x=variable,y=group,fill=value))+
-            geom_tile(colour="black",size=0.1)+
-            coord_polar()+xlab("")+ylab("")
+        ggplot(data = a, aes(
+            x = variable,
+            y = group,
+            fill = value
+        )) +
+            geom_tile(colour = "black", size = 0.1) +
+            coord_polar() + xlab("") + ylab("")
         
     })
     
     output$monthtimebars <- renderPlot({
         a <- timedata()
-        a<-arrange(a,as.numeric(a$monthofYear))
-        a<- a[c(input$temporalcolumn, "monthofYear")]
-        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
-                                            variable = monthofYear,
-                                            value = Freq)
+        a <- arrange(a, as.numeric(a$monthofYear))
+        a <- a[c(input$temporalcolumn, "monthofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = monthofYear,
+                value = Freq
+            )
         
-        ggplot(data=a,aes(x=variable,y=value,fill=group))+
-            geom_bar(stat="identity")+xlab("Days")+ylab("Quantity")
+        ggplot(data = a, aes(
+            x = variable,
+            y = value,
+            fill = group
+        )) +
+            geom_bar(stat = "identity") + xlab("Days") + ylab("Quantity")
     })
     
     output$monthtimerose <- renderPlot({
         a <- timedata()
-        a<-arrange(a,as.numeric(a$monthofYear))
-        a<- a[c(input$temporalcolumn, "monthofYear")]
-        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
-                                            variable = monthofYear,
-                                            value = Freq)
+        a <- arrange(a, as.numeric(a$monthofYear))
+        a <- a[c(input$temporalcolumn, "monthofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = monthofYear,
+                value = Freq
+            )
         
-        ggplot(data=a,aes(x=variable,y=value,fill=group))+
-            geom_bar(stat="identity")+
-            coord_polar()+xlab("")+ylab("")
+        ggplot(data = a, aes(
+            x = variable,
+            y = value,
+            fill = group
+        )) +
+            geom_bar(stat = "identity") +
+            coord_polar() + xlab("") + ylab("")
     })
     
     #year Plots..................................
     
     output$yearlines <- renderPlotly({
         a <- timedata()
-        a<-arrange(a,as.numeric(a$Year_))
-        a<- a[c(input$temporalcolumn, "Year_")]
-        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
-                                            variable = Year_,
-                                            value = Freq)
+        a <- arrange(a, as.numeric(a$Year_))
+        a <- a[c(input$temporalcolumn, "Year_")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = Year_,
+                value = Freq
+            )
         
-        plot_ly(a, x = ~variable, y = ~value, color = ~group) %>%
+        plot_ly(
+            a,
+            x = ~ variable,
+            y = ~ value,
+            color = ~ group
+        ) %>%
             add_lines()
     })
     
     output$yearlines3d <- renderPlotly({
         a <- timedata()
-        a<-arrange(a,as.numeric(a$Year_))
-        a<- a[c(input$temporalcolumn, "Year_")]
-        a <- data.frame(table(a)) %>%rename(group = input$temporalcolumn,
-                                            variable = Year_,
-                                            value = Freq)
-        plot_ly(a, x = ~variable, y = ~value, z = ~group, type = 'scatter3d', mode = 'lines', color = ~group)
+        a <- arrange(a, as.numeric(a$Year_))
+        a <- a[c(input$temporalcolumn, "Year_")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = input$temporalcolumn,
+                variable = Year_,
+                value = Freq
+            )
+        plot_ly(
+            a,
+            x = ~ variable,
+            y = ~ value,
+            z = ~ group,
+            type = 'scatter3d',
+            mode = 'lines',
+            color = ~ group
+        )
     })
     
     #Practice for Reactive....................................
     output$arr_time <- renderPlotly({
         plot_ly(arr_stats, source = "arr_time") %>%
-            add_bars(x = ~xmin_, y = ~count_)
+            add_bars(x = ~ xmin_, y = ~ count_)
     })
     output$dep_time <- renderPlotly({
         plot_ly(dep_stats, source = "dep_time") %>%
-            add_bars(x = ~xmin_, y = ~count_)
-    
+            add_bars(x = ~ xmin_, y = ~ count_)
+        
     })
     observe({
         brush <- event_data("plotly_brushing", source = "arr_time")
@@ -448,8 +525,10 @@ shinyServer(function(input, output, session) {
         if (is.null(brush)) {
             plotlyProxyInvoke(p, "restyle", "y", list(dep_stats$count_))
         } else {
-            dep_time_filter <- dep_time[between(dep_time, brush$x[1], brush$x[2])]
-            dep_count <- compute_stat(dep_bins, dep_time_filter)$count_
+            dep_time_filter <-
+                dep_time[between(dep_time, brush$x[1], brush$x[2])]
+            dep_count <-
+                compute_stat(dep_bins, dep_time_filter)$count_
             plotlyProxyInvoke(p, "restyle", "y", list(dep_count))
         }
     })
@@ -460,8 +539,10 @@ shinyServer(function(input, output, session) {
         if (is.null(brush)) {
             plotlyProxyInvoke(p, "restyle", "y", list(arr_stats$count_))
         } else {
-            arr_time_filter <- arr_time[between(arr_time, brush$x[1], brush$x[2])]
-            arr_count <- compute_stat(arr_bins, arr_time_filter)$count_
+            arr_time_filter <-
+                arr_time[between(arr_time, brush$x[1], brush$x[2])]
+            arr_count <-
+                compute_stat(arr_bins, arr_time_filter)$count_
             plotlyProxyInvoke(p, "restyle", "y", list(arr_count))
         }
     })
@@ -472,26 +553,61 @@ shinyServer(function(input, output, session) {
     })
     
     output$fifthmap <- renderLeaflet({
-         leaflet(mam, options = leafletOptions(preferCanvas = TRUE)) %>%
-            addProviderTiles(providers$Esri.WorldGrayCanvas, options = providerTileOptions(
-                updateWhenZooming = FALSE,      # map won't update tiles until zoom is done
-                updateWhenIdle = TRUE           # map won't load new tiles when panning
-            )) %>% addMarkers(~decimalLongitude, ~decimalLatitude) # Add default OpenStreetMap map tiles
+        leaflet(mam, options = leafletOptions(preferCanvas = TRUE)) %>%
+            addProviderTiles(
+                providers$Esri.WorldGrayCanvas,
+                options = providerTileOptions(
+                    updateWhenZooming = FALSE,
+                    # map won't update tiles until zoom is done
+                    updateWhenIdle = TRUE           # map won't load new tiles when panning
+                )
+            ) %>% addMarkers( ~ decimalLongitude, ~ decimalLatitude) # Add default OpenStreetMap map tiles
         
     })
+    
+    
     
     
     observe({
         select <- event_data("plotly_selected", source = "reactiveBars")
         newData <- mam %>% filter(family %in% select$y)
-        leafletProxy("fifthmap", data = newData) %>% clearMarkers() %>%
-        addMarkers(~decimalLongitude, ~decimalLatitude)
-        })
+        if (is.null(select)) {
+            leafletProxy("fifthmap", data = mam) %>% clearMarkers() %>%
+                addMarkers( ~ decimalLongitude, ~ decimalLatitude)
+        } else{
+            leafletProxy("fifthmap", data = newData) %>% clearMarkers() %>%
+                addMarkers( ~ decimalLongitude, ~ decimalLatitude)
+        }
+    })
     
-        output$fifthtext <- renderPrint({
-            a<- event_data("plotly_selected", source = "reactiveBars")
-         return(a$y)
-        })
+    observe({
+        select <- event_data("plotly_click", source = "reactiveBars")
+        newData <- mam %>% filter(family %in% select$y)
+        if (is.null(select)) {
+            leafletProxy("fifthmap", data = mam) %>% clearMarkers() %>%
+                addMarkers( ~ decimalLongitude, ~ decimalLatitude)
+        } else{
+            leafletProxy("fifthmap", data = newData) %>% clearMarkers() %>%
+                addMarkers( ~ decimalLongitude, ~ decimalLatitude)
+        }
+    })
+    
+    # observe({
+    #     select <- event_data("plotly_hover", source = "reactiveBars")
+    #     newData <- mam %>% filter(family %in% select$y)
+    #     if (is.null(select)) {
+    #         leafletProxy("fifthmap", data = mam) %>% clearMarkers() %>%
+    #             addMarkers( ~ decimalLongitude, ~ decimalLatitude)
+    #     } else{
+    #         leafletProxy("fifthmap", data = newData) %>% clearMarkers() %>%
+    #             addMarkers( ~ decimalLongitude, ~ decimalLatitude)
+    #     }
+    # })
+    
+    output$fifthtext <- renderPrint({
+        a <- event_data("plotly_click", source = "reactiveBars")
+        return(a$y)
+    })
     
 })#END OF SERVER
 
