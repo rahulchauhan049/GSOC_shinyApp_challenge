@@ -346,7 +346,7 @@ shinyUI(fluidPage(
             selectizeInput(
               "temporaldataset",
               "Select Dataset",
-              c("Hyena" = "hyenaData.csv", "Mammals" = "mammalsLarge.csv")
+              c( "Mammals" = "mammalsLarge.csv", "Hyena" = "hyenaData.csv")
             )
           ),
           column(
@@ -408,9 +408,9 @@ shinyUI(fluidPage(
         verbatimTextOutput("fifthtext")
       ),
       fluidRow(
-        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthday")),
         column(width = 6, style = 'padding: 5px', plotlyOutput("fifthmonth")),
-        verbatimTextOutput("fifthtext2")
+        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthday")),
+        tableOutput("fifthtext2")
       ))
     )
   )

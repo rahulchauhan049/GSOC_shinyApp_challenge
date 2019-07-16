@@ -510,6 +510,28 @@ shinyServer(function(input, output, session) {
     })
     
     #Practice for Reactive....................................
+    fifthtime <- reactive({
+        mammals <- read.csv("www/csv/hyenaData.csv")
+        mammals <- format_bdvis(mammals,source='rgbif')
+        
+        
+        names(mammals)=gsub("\\.","_",names(mammals))
+        if("Date_collected" %in% colnames(mammals)){
+            if(length(which(!is.na(mammals$Date_collected)))==0){
+                stop("Date_collected has no data")
+            }
+            dayofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%d"))
+            weekofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%U"))
+            monthofYear = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%m"))
+            Year_ = as.numeric(strftime(as.Date(mammals$Date_collected,na.rm=T), format = "%Y"))
+            
+        } else {
+            stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
+        }
+        a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
+        return(a)
+    })
+    
     output$arr_time <- renderPlotly({
         plot_ly(arr_stats, source = "arr_time") %>%
             add_bars(x = ~ xmin_, y = ~ count_)
@@ -599,48 +621,103 @@ shinyServer(function(input, output, session) {
     })
     
     #Time.......................
-    output$fifthmonth <- renderPlotly({
-        a <- timedata()
-        a <- arrange(a, as.numeric(a$dayofYear))
-        a <- a[c(input$temporalcolumn, "dayofYear")]
-        a <-
-            data.frame(table(a)) %>% rename(
-                group = input$temporalcolumn,
-                variable = dayofYear,
-                value = Freq
-            )
-        
-        ggplot(data = a, source = 'reactiveMonth', aes(
-            x = variable,
-            y = value,
-            fill = group
-        )) +
-            geom_bar(stat = "identity") + xlab("Month") + ylab("Quantity")
-    })
     
-    output$fifthday <- renderPlotly({
-        a <- timedata()
+    output$fifthmonth <- renderPlotly({
+        a <- fifthtime()
         a <- arrange(a, as.numeric(a$monthofYear))
-        a <- a[c(input$temporalcolumn, "monthofYear")]
+        a <- a[c("genus", "monthofYear")]
         a <-
             data.frame(table(a)) %>% rename(
-                group = input$temporalcolumn,
+                group = "genus",
                 variable = monthofYear,
                 value = Freq
             )
-        
-        ggplot(data = a, aes(
-            x = variable,
-            y = value,
-            fill = group
-        )) +
-            geom_bar(stat = "identity") + xlab("Days") + ylab("Quantity")
+        plot_ly(a, source = "reactMonth", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+            layout(title = "Features",
+                   xaxis = list(title = ""),
+                   yaxis = list(title = ""))
+        # g<- ggplot(data = a, aes(
+        #     x = variable,
+        #     y = value,
+        #     fill = group
+        # )) +
+        #     geom_bar(stat = "identity") + xlab("Days") + ylab("Quantity")
+        # ggplotly(g, source = 'reactMonth') %>% layout(dragmode = 'lasso')
     })
     
-    output$fifthtext2 <- renderPrint({
-        a <- event_data("plotly_selected", source = "reactiveMonth")
-        return(a)
+    output$fifthday <- renderPlotly({
+        a <- fifthtime()
+        a <- arrange(a, as.numeric(a$dayofYear))
+        a <- a[c("genus", "dayofYear")]
+        a <-
+            data.frame(table(a)) %>% rename(
+                group = genus,
+                variable = dayofYear,
+                value = Freq
+            )
+        plot_ly(a,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+            layout(title = "Features",
+                   xaxis = list(title = "Day"),
+                   yaxis = list(title = "Value"))        
+        # g <- ggplot(data = a, aes(
+        #     x = variable,
+        #     y = value,
+        #     fill = group
+        # )) +
+        #     geom_bar(stat = "identity") + xlab("Month") + ylab("Quantity")
+        # ggplotly(g, source = 'reactday') %>% layout(dragmode = 'lasso')
     })
+    
+    observe({
+        brush <- event_data("plotly_click", source = "reactMonth")
+        a <- fifthtime()
+        
+        
+        if (is.null(brush)){
+            a <- arrange(a, as.numeric(a$dayofYear))
+            a <- a[c("genus", "dayofYear")]
+            a <-
+                data.frame(table(a)) %>% rename(
+                    group = genus,
+                    variable = dayofYear,
+                    value = Freq
+                )
+            output$fifthday <- renderPlotly({
+                plot_ly(a,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+                    layout(title = "Features",
+                           xaxis = list(title = "Day"),
+                           yaxis = list(title = "Value")) 
+            })
+        } else {
+            select = as.data.frame(brush$x)
+            newData <- a %>% filter(monthofYear %in% select$'brush$x')
+            newData<-arrange(newData,as.numeric(newData$dayofYear))
+            newData<- newData[c("genus", "dayofYear")]
+            newData <- data.frame(table(newData)) %>%rename(group = genus,
+                                                            variable = dayofYear,
+                                                            value = Freq)
+            output$fifthday <- renderPlotly({
+                plot_ly(newData,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+                    layout(title = "Features",
+                           xaxis = list(title = "Day"),
+                           yaxis = list(title = "Value")) 
+            })
+        }
+    })
+    
+    
+    
+    # output$fifthtext2 <- renderTable({
+    #     brush <- event_data("plotly_click", source = "reactMonth")
+    #     select = as.data.frame(brush$x)
+    #     newData <- a %>% filter(monthofYear %in% select$'brush$x')
+    #     newData<-arrange(newData,as.numeric(newData$dayofYear))
+    #     newData<- newData[c("genus", "dayofYear")]
+    #     newData <- data.frame(table(newData)) %>%rename(group = genus,
+    #                                                     variable = dayofYear,
+    #                                                     value = Freq)
+    #     return(newData)
+    # })
     
 })#END OF SERVER
 

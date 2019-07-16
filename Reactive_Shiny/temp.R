@@ -8,8 +8,8 @@ library("rgbif")
 library("sqldf")
 library("plotrix")
 
-key <- name_backbone(name = "Mammalia")$usageKey
-mammals <-occ_search(taxonKey = key, limit = 10000, hasCoordinate=TRUE, hasGeospatialIssue=FALSE, return = "data")
+# key <- name_backbone(name = "Mammalia")$usageKey
+# mammals <-occ_search(taxonKey = key, limit = 10000, hasCoordinate=TRUE, hasGeospatialIssue=FALSE, return = "data")
 mammals <- read.csv("www/csv/mammalsLarge.csv")
 mammals[which(names(mammals) %in% "rights") *-1]
 
@@ -33,16 +33,28 @@ if("Date_collected" %in% colnames(mammals)){
   stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
 }
 a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
-a<-arrange(a,as.numeric(a$Year_))
-a<- a[c("genus", "Year_")]
+brush <- list(y=c(12))
+select <- as.data.frame(brush$y)
+newData <- a %>% filter(monthofYear %in% select$`brush$y`)
+a<-arrange(a,as.numeric(a$dayofYear))
+a<- a[c("genus", "dayofYear")]
 a <- data.frame(table(a)) %>%rename(group = genus,
-                                variable = Year_,
+                                variable = dayofYear,
                                 value = Freq)
 
 
-plot_ly(a, x = ~variable, y = ~value, z = ~group, type = 'scatter3d', mode = 'lines', color = ~group)
+plot_ly(a, x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+  layout(title = "Features",
+         xaxis = list(title = ""),
+         yaxis = list(title = ""))
 
-a <- data.frame(y=c("Mustelidae","Felidae"))
-newData <- mam %>% filter(family %in% a$y)
+g <- ggplot(data = a, aes(
+  x = variable,
+  y = value,
+  fill = group
+)) +
+  geom_bar(stat = "identity") + xlab("Month") + ylab("Quantity")
+ggplotly(g, source = 'reactday') %>% layout(dragmode = 'lasso')
 
-                          
+plotly_example("shiny", "proxy_mapbox")
+
