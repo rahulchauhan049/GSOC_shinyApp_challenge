@@ -6,11 +6,20 @@
 # library(shiny)
 # library("crosstalk")
 # library(dplyr)
-# library("plotly")
+library("plotly")
 # library(r2d3)
 # library("collapsibleTree")
 library(nycflights13)
 library(ggstat)
+library(htmlwidgets)
+
+
+js <- c(
+    "function(el, x){",
+    "  el.on('plotly_legenddoubleclick', function(evtData) {",
+    "    Shiny.setInputValue('trace', evtData.data[evtData.curveNumber].name);",
+    "  });",
+    "}")
 
 flights <- flights
 arr_time <- flights$arr_time
@@ -635,15 +644,8 @@ shinyServer(function(input, output, session) {
         plot_ly(a, source = "reactMonth", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
             layout(title = "Features",
                    xaxis = list(title = ""),
-                   yaxis = list(title = ""))
-        # g<- ggplot(data = a, aes(
-        #     x = variable,
-        #     y = value,
-        #     fill = group
-        # )) +
-        #     geom_bar(stat = "identity") + xlab("Days") + ylab("Quantity")
-        # ggplotly(g, source = 'reactMonth') %>% layout(dragmode = 'lasso')
-    })
+                   yaxis = list(title = ""))%>% onRender(js)   
+        })
     
     output$fifthday <- renderPlotly({
         a <- fifthtime()
@@ -658,18 +660,91 @@ shinyServer(function(input, output, session) {
         plot_ly(a,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
             layout(title = "Features",
                    xaxis = list(title = "Day"),
-                   yaxis = list(title = "Value"))        
-        # g <- ggplot(data = a, aes(
-        #     x = variable,
-        #     y = value,
-        #     fill = group
-        # )) +
-        #     geom_bar(stat = "identity") + xlab("Month") + ylab("Quantity")
-        # ggplotly(g, source = 'reactday') %>% layout(dragmode = 'lasso')
+                   yaxis = list(title = "Value"))     
+        
     })
     
     observe({
         brush <- event_data("plotly_click", source = "reactMonth")
+        a <- fifthtime()
+        
+        
+        if (is.null(brush)){
+            a <- arrange(a, as.numeric(a$dayofYear))
+            if(!is.null(input$trace)){
+                a <- a %>% filter(genus %in% input$trace)
+            }
+            a <- a[c("genus", "dayofYear")]
+            a <-
+                data.frame(table(a)) %>% rename(
+                    group = genus,
+                    variable = dayofYear,
+                    value = Freq
+                )
+            output$fifthday <- renderPlotly({
+                plot_ly(a,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+                    layout(title = "Features",
+                           xaxis = list(title = "Day"),
+                           yaxis = list(title = "Value")) %>% onRender(js)
+            })
+        } else {
+            select = as.data.frame(brush$x)
+            newData <- a %>% filter(monthofYear %in% select$'brush$x')
+            if(!is.null(input$trace)){
+                newData <- newData %>% filter(genus %in% input$trace)
+            }
+            newData<-arrange(newData,as.numeric(newData$dayofYear))
+            newData<- newData[c("genus", "dayofYear")]
+            newData <- data.frame(table(newData)) %>%rename(group = genus,
+                                                            variable = dayofYear,
+                                                            value = Freq)
+            output$fifthday <- renderPlotly({
+                plot_ly(newData,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+                    layout(title = "Features",
+                           xaxis = list(title = "Day"),
+                           yaxis = list(title = "Value"))%>% onRender(js) 
+            })
+        }
+    })
+    
+    observeEvent(input$reset,{
+        output$fifthday <- renderPlotly({
+            a <- fifthtime()
+            a <- arrange(a, as.numeric(a$dayofYear))
+            a <- a[c("genus", "dayofYear")]
+            a <-
+                data.frame(table(a)) %>% rename(
+                    group = genus,
+                    variable = dayofYear,
+                    value = Freq
+                )
+            plot_ly(a,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+                layout(title = "Features",
+                       xaxis = list(title = "Day"),
+                       yaxis = list(title = "Value"))     
+            
+        })
+        output$fifthmonth <- renderPlotly({
+            a <- fifthtime()
+            a <- arrange(a, as.numeric(a$monthofYear))
+            a <- a[c("genus", "monthofYear")]
+            a <-
+                data.frame(table(a)) %>% rename(
+                    group = "genus",
+                    variable = monthofYear,
+                    value = Freq
+                )
+            plot_ly(a, source = "reactMonth", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
+                layout(title = "Features",
+                       xaxis = list(title = ""),
+                       yaxis = list(title = ""))%>% onRender(js)   
+        })
+        
+    })
+    
+    #for plotly selected
+    observe({
+        brush <- event_data("plotly_selected", source = "reactMonth")
         a <- fifthtime()
         
         
@@ -686,7 +761,7 @@ shinyServer(function(input, output, session) {
                 plot_ly(a,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
                     layout(title = "Features",
                            xaxis = list(title = "Day"),
-                           yaxis = list(title = "Value")) 
+                           yaxis = list(title = "Value")) %>% onRender(js)
             })
         } else {
             select = as.data.frame(brush$x)
@@ -700,24 +775,27 @@ shinyServer(function(input, output, session) {
                 plot_ly(newData,source = "reactDay", x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
                     layout(title = "Features",
                            xaxis = list(title = "Day"),
-                           yaxis = list(title = "Value")) 
+                           yaxis = list(title = "Value")) %>% onRender(js)
             })
         }
     })
     
     
     
-    # output$fifthtext2 <- renderTable({
-    #     brush <- event_data("plotly_click", source = "reactMonth")
-    #     select = as.data.frame(brush$x)
-    #     newData <- a %>% filter(monthofYear %in% select$'brush$x')
-    #     newData<-arrange(newData,as.numeric(newData$dayofYear))
-    #     newData<- newData[c("genus", "dayofYear")]
-    #     newData <- data.frame(table(newData)) %>%rename(group = genus,
-    #                                                     variable = dayofYear,
-    #                                                     value = Freq)
-    #     return(newData)
-    # })
+    
+    
+    output$fifthtext2 <- renderPrint({
+        # brush <- event_data("plotly_click", source = "reactDay")
+        # select = as.data.frame(brush$x)
+        # newData <- a %>% filter(monthofYear %in% select$'brush$x')
+        # newData<-arrange(newData,as.numeric(newData$dayofYear))
+        # newData<- newData[c("genus", "dayofYear")]
+        # newData <- data.frame(table(newData)) %>%rename(group = genus,
+        #                                                 variable = dayofYear,
+        #                                                 value = Freq)
+        # return(newData)
+        d <- input$trace
+        if (is.null(d)) "Clicked item appear here" else d    })
     
 })#END OF SERVER
 

@@ -32,29 +32,39 @@ if("Date_collected" %in% colnames(mammals)){
 } else {
   stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
 }
-a = cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
-brush <- list(y=c(12))
-select <- as.data.frame(brush$y)
-newData <- a %>% filter(monthofYear %in% select$`brush$y`)
+a <- cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
+a <- a %>% filter(genus %in% "Crocuta")
 a<-arrange(a,as.numeric(a$dayofYear))
 a<- a[c("genus", "dayofYear")]
 a <- data.frame(table(a)) %>%rename(group = genus,
                                 variable = dayofYear,
                                 value = Freq)
 
-
 plot_ly(a, x = ~variable, y = ~value, type = 'bar', color = ~group) %>%
   layout(title = "Features",
          xaxis = list(title = ""),
          yaxis = list(title = ""))
 
-g <- ggplot(data = a, aes(
-  x = variable,
-  y = value,
-  fill = group
-)) +
-  geom_bar(stat = "identity") + xlab("Month") + ylab("Quantity")
-ggplotly(g, source = 'reactday') %>% layout(dragmode = 'lasso')
+df <- data.frame(x = c(1,2,3,4,5), y1 = c(5,5,5,5,5))
 
-plotly_example("shiny", "proxy_mapbox")
+p <- plot_ly(df, x = ~x, y = ~y1, mode = 'markers')
 
+p <- p %>% layout(
+  title = "Button Restyle",
+  xaxis = list(domain = c(0.1, 1)),
+  yaxis = list(title = "y"),
+  updatemenus = list(
+    list(
+      type = "buttons",
+      y = 0.8,
+      buttons = list(
+        
+        list(method = "restyle",
+             args = list("marker.symbol", "circle"),
+             label = "Circle"),
+        
+        list(method = "restyle",
+             args = list("marker.symbol", "square"),
+             label = "Square")))
+  ))
+p

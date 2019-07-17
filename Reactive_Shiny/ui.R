@@ -408,9 +408,12 @@ shinyUI(fluidPage(
         verbatimTextOutput("fifthtext")
       ),
       fluidRow(
-        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthmonth")),
+        useShinyjs(),
+        
+        column(width = 6, style = 'padding: 5px',    extendShinyjs(text = "shinyjs.resetClick = function() { Shiny.onInputChange('plotly_click-A', 'null'); }"),    actionButton("reset", "Reset plotly click value"),
+                plotlyOutput("fifthmonth")),
         column(width = 6, style = 'padding: 5px', plotlyOutput("fifthday")),
-        tableOutput("fifthtext2")
+        verbatimTextOutput("fifthtext2")
       ))
     )
   )
