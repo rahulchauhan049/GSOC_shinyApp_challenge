@@ -32,10 +32,10 @@ if("Date_collected" %in% colnames(mammals)){
 } else {
   stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
 }
-a <- cbind(mammals["genus"],dayofYear,weekofYear,monthofYear,Year_)
-a <- a %>% filter(genus %in% "Crocuta")
-a<-arrange(a,as.numeric(a$dayofYear))
-a<- a[c("genus", "dayofYear")]
+a <- cbind(mammals[c("genus", "species")],dayofYear,weekofYear,monthofYear,Year_)
+# a <- a %>% filter(genus %in% "Crocuta")
+a<-arrange(a,as.numeric(a$monthofYear))
+a<- a[c("genus", "species", "dayofYear")]
 a <- data.frame(table(a)) %>%rename(group = genus,
                                 variable = dayofYear,
                                 value = Freq)

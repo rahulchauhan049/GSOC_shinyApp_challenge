@@ -419,6 +419,11 @@ shinyUI(fluidPage(
       fluidRow(
         column(width = 12, style = 'padding: 5px', plotlyOutput("fifthpiechart"), uiOutput("back")),
         verbatimTextOutput("fifthpietext")
+      ),
+      fluidRow(
+        column(width = 6, style = 'padding: 5px', plotlyOutput("bar"),
+               uiOutput("back")),
+        column(width = 6, style = 'padding: 5px', plotlyOutput("time"))
       ))
     )
   )

@@ -37,6 +37,34 @@ piedata <- na.omit(hyena[c("genus","species")])
 categories <- unique(mammals$genus)
 #.............................................
 
+
+#For Drill down bar Chart with time data......................
+dataForBar <- format_bdvis(mammals,source='rgbif')
+
+
+names(dataForBar)=gsub("\\.","_",names(dataForBar))
+if("Date_collected" %in% colnames(dataForBar)){
+    if(length(which(!is.na(dataForBar$Date_collected)))==0){
+        stop("Date_collected has no data")
+    }
+    dayofYear = as.numeric(strftime(as.Date(dataForBar$Date_collected,na.rm=T), format = "%d"))
+    weekofYear = as.numeric(strftime(as.Date(dataForBar$Date_collected,na.rm=T), format = "%U"))
+    monthofYear = as.numeric(strftime(as.Date(dataForBar$Date_collected,na.rm=T), format = "%m"))
+    Year_ = as.numeric(strftime(as.Date(dataForBar$Date_collected,na.rm=T), format = "%Y"))
+    
+} else {
+    stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
+}
+dataForBar <- cbind(dataForBar[c("genus", "species")],dayofYear,weekofYear,monthofYear,Year_)
+dataForBar<-arrange(dataForBar,as.numeric(dataForBar$monthofYear))
+dataForBar<- dataForBar[c("genus", "species", "monthofYear")]
+dataForBar <- na.omit(dataForBar)
+categoriesbar <- unique(dataForBar$genus)
+#...............................................................................
+
+
+
+
 options(shiny.maxRequestSize = 30 * 1024 ^ 2)
 #import Datasets
 columnName <- read.csv("www/csv/columnNames.csv")
@@ -842,7 +870,62 @@ shinyServer(function(input, output, session) {
     
     # clear the chosen category on back button press
     observeEvent(input$clear, current_category(NULL))
+    #Pie chart End here.......................................
+    
+    #Bar Chart with time data.................................................
+    current_categorybar <- reactiveVal()
+    
+    # report sales by category, unless a category is chosen
+    mammals_data <- reactive({
+        if (!length(current_categorybar())) {
+            return(count(dataForBar, genus))
+        }
+        dataForBar %>%
+            filter(genus %in% current_categorybar()) %>%
+            count(species)
+    })
+    
+    # the pie chart
+    output$bar <- renderPlotly({
+        d <- setNames(mammals_data(), c("x", "y"))
+        
+        plot_ly(d, source = "barwithtime") %>%
+            add_bars(x = ~x, y = ~y, color = ~x) %>%
+            layout(title = current_categorybar() %||% "Total Sales")
+    })
+    
+    # same as sales_data
+    mammals_data_time <- reactive({
+        if (!length(current_categorybar())) {
+            return(count(dataForBar, genus, monthofYear))
+        }
+        dataForBar %>%
+            filter(genus %in% current_categorybar()) %>%
+            count(species, monthofYear)
+    })
+    
+    output$time <- renderPlotly({
+        d <- setNames(mammals_data_time(), c("color", "x", "y"))
+        plot_ly(d) %>%
+            add_lines(x = ~x, y = ~y, color = ~color)
+    })
+    
+    # update the current category if the clicked value matches a category
+    observe({
+        cd <- event_data("plotly_click", source = "barwithtime")$x
+        if (isTRUE(cd %in% categoriesbar)) current_categorybar(cd)
+    })
+    
+    # populate back button if category is chosen
+    output$back <- renderUI({
+        if (length(current_categorybar())) 
+            actionButton("clear", "Back", icon("chevron-left"))
+    })
+    
+    # clear the chosen category on back button press
+    observeEvent(input$clear, current_categorybar(NULL))
 
+    #Bar chart End here.....................................
     
 })#END OF SERVER
 
@@ -895,5 +978,6 @@ gbif <-
         else{
             fields = fields
         }
-        return(occ[fields])
+     
+           return(occ[fields])
     }
