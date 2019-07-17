@@ -30,6 +30,7 @@ arr_stats <- compute_stat(arr_bins, arr_time)
 dep_stats <- compute_stat(dep_bins, dep_time)
 
 mam <- read.csv("www/csv/mammalsLarge.csv")
+mammals <- read.csv("www/csv/hyenaData.csv")
 hyena <- read.csv('www/csv/hyenaData.csv')
 
 #for drill down pie chart....................
@@ -39,7 +40,7 @@ categories <- unique(mammals$genus)
 
 
 #For Drill down bar Chart with time data......................
-dataForBar <- format_bdvis(mammals,source='rgbif')
+dataForBar <- format_bdvis(hyena,source='rgbif')
 
 
 names(dataForBar)=gsub("\\.","_",names(dataForBar))
@@ -886,11 +887,11 @@ shinyServer(function(input, output, session) {
     })
     
     # the pie chart
-    output$bar <- renderPlotly({
-        d <- setNames(mammals_data(), c("x", "y"))
+    output$barwithtime1 <- renderPlotly({
+        d <- setNames(mammals_data(), c("Names", "value"))
         
         plot_ly(d, source = "barwithtime") %>%
-            add_bars(x = ~x, y = ~y, color = ~x) %>%
+            add_bars(x = ~Names, y = ~value, color = ~Names) %>%
             layout(title = current_categorybar() %||% "Total Sales")
     })
     
@@ -905,9 +906,9 @@ shinyServer(function(input, output, session) {
     })
     
     output$time <- renderPlotly({
-        d <- setNames(mammals_data_time(), c("color", "x", "y"))
+        d <- setNames(mammals_data_time(), c("color", "month", "value"))
         plot_ly(d) %>%
-            add_lines(x = ~x, y = ~y, color = ~color)
+            add_lines(x = ~month, y = ~value, color = ~color)
     })
     
     # update the current category if the clicked value matches a category
@@ -917,7 +918,7 @@ shinyServer(function(input, output, session) {
     })
     
     # populate back button if category is chosen
-    output$back <- renderUI({
+    output$back1 <- renderUI({
         if (length(current_categorybar())) 
             actionButton("clear", "Back", icon("chevron-left"))
     })

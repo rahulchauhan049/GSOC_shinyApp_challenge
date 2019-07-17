@@ -347,7 +347,7 @@ shinyUI(fluidPage(
             selectizeInput(
               "temporaldataset",
               "Select Dataset",
-              c( "Mammals" = "mammalsLarge.csv", "Hyena" = "hyenaData.csv")
+              c("Mammals" = "mammalsLarge.csv", "Hyena" = "hyenaData.csv")
             )
           ),
           column(
@@ -399,32 +399,52 @@ shinyUI(fluidPage(
     tabPanel(
       "Practice for reactive",
       value = "page5",
-      fluidPage(fluidRow(
-        column(width = 6, style = 'padding: 5px', plotlyOutput("arr_time")),
-        column(width = 6, style = 'padding: 5px', plotlyOutput("dep_time"))
-      ),
-      fluidRow(
-        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthpie")),
-        column(width = 6, style = 'padding: 5px', leafletOutput("fifthmap")),
-        verbatimTextOutput("fifthtext")
-      ),
-      fluidRow(
-        useShinyjs(),
-        
-        column(width = 6, style = 'padding: 5px',    extendShinyjs(text = "shinyjs.resetClick = function() { Shiny.onInputChange('plotly_click-A', 'null'); }"),    actionButton("reset", "Reset plotly click value"),
-                plotlyOutput("fifthmonth")),
-        column(width = 6, style = 'padding: 5px', plotlyOutput("fifthday")),
-        verbatimTextOutput("fifthtext2")
-      ),
-      fluidRow(
-        column(width = 12, style = 'padding: 5px', plotlyOutput("fifthpiechart"), uiOutput("back")),
-        verbatimTextOutput("fifthpietext")
-      ),
-      fluidRow(
-        column(width = 6, style = 'padding: 5px', plotlyOutput("bar"),
-               uiOutput("back")),
-        column(width = 6, style = 'padding: 5px', plotlyOutput("time"))
-      ))
+      fluidPage(
+        fluidRow(
+          column(width = 6, style = 'padding: 5px', plotlyOutput("arr_time")),
+          column(width = 6, style = 'padding: 5px', plotlyOutput("dep_time"))
+        ),
+        fluidRow(
+          column(width = 6, style = 'padding: 5px', plotlyOutput("fifthpie")),
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            leafletOutput("fifthmap")
+          ),
+          verbatimTextOutput("fifthtext")
+        ),
+        fluidRow(
+          useShinyjs(),
+          
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            extendShinyjs(text = "shinyjs.resetClick = function() { Shiny.onInputChange('plotly_click-A', 'null'); }"),
+            actionButton("reset", "Reset plotly click value"),
+            plotlyOutput("fifthmonth")
+          ),
+          column(width = 6, style = 'padding: 5px', plotlyOutput("fifthday")),
+          verbatimTextOutput("fifthtext2")
+        ),
+        fluidRow(
+          column(
+            width = 12,
+            style = 'padding: 5px',
+            plotlyOutput("fifthpiechart"),
+            uiOutput("back")
+          ),
+          verbatimTextOutput("fifthpietext")
+        ),
+        fluidRow(
+          column(
+            width = 6,
+            style = 'padding: 5px',
+            plotlyOutput("barwithtime1"),
+            uiOutput("back1")
+          ),
+          column(width = 6, style = 'padding: 5px', plotlyOutput("time"))
+        )
+      )
     )
   )
 ))#End of navbar menu called visualization)#End of navbar page)#End of fluidpage)
