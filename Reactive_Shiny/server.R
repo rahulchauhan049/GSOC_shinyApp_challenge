@@ -30,6 +30,12 @@ arr_stats <- compute_stat(arr_bins, arr_time)
 dep_stats <- compute_stat(dep_bins, dep_time)
 
 mam <- read.csv("www/csv/mammalsLarge.csv")
+hyena <- read.csv('www/csv/hyenaData.csv')
+
+#for drill down pie chart....................
+piedata <- na.omit(hyena[c("genus","species")])
+categories <- unique(mammals$genus)
+#.............................................
 
 options(shiny.maxRequestSize = 30 * 1024 ^ 2)
 #import Datasets
@@ -796,6 +802,47 @@ shinyServer(function(input, output, session) {
         # return(newData)
         d <- input$trace
         if (is.null(d)) "Clicked item appear here" else d    })
+    
+    
+    #Some more examples of reactive plots......................................
+    
+    # for maintaining the current category (i.e. selection)
+    current_category <- reactiveVal()
+    
+    # report sales by category, unless a category is chosen
+    sales_data <- reactive({
+        if (!length(current_category())) {
+            return(count(mammals, genus))
+        }
+        mammals %>%
+            filter(genus %in% current_category()) %>%
+            count(species)
+    })
+    
+    # Note that pie charts don't currently attach the label/value 
+    # with the click data, but we can leverage `customdata` as a workaround
+    output$fifthpiechart <- renderPlotly({
+        d <- setNames(sales_data(), c("labels", "values"))
+        plot_ly(d, source = "reactpie") %>%
+            add_pie(labels = ~labels, values = ~values, customdata = ~labels) %>%
+            layout(title = current_category() %||% "Total Sales")
+    })
+    
+    # update the current category if the clicked value matches a category
+    observe({
+        cd <- event_data("plotly_click", source = "reactpie")$customdata[[1]]
+        if (isTRUE(cd %in% categories)) current_category(cd)
+    })
+    
+    # populate back button if category is chosen
+    output$back <- renderUI({
+        if (length(current_category())) 
+            actionButton("clear", "Back", icon("chevron-left"))
+    })
+    
+    # clear the chosen category on back button press
+    observeEvent(input$clear, current_category(NULL))
+
     
 })#END OF SERVER
 

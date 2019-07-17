@@ -67,4 +67,9 @@ p <- p %>% layout(
              args = list("marker.symbol", "square"),
              label = "Square")))
   ))
-p
+
+plot_ly(hyena, labels = ~genus, type = 'pie') %>%
+  layout(title = 'United States Personal Expenditures by Categories in 1960',
+         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+

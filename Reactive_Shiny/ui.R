@@ -19,7 +19,8 @@ library("tidyr")
 library("ggplot2")
 library(nycflights13)
 library(ggstat)
-
+library(purrr) # just for `%||%`
+library("shinyjs")
 
 
 # Define UI for application
@@ -414,6 +415,10 @@ shinyUI(fluidPage(
                 plotlyOutput("fifthmonth")),
         column(width = 6, style = 'padding: 5px', plotlyOutput("fifthday")),
         verbatimTextOutput("fifthtext2")
+      ),
+      fluidRow(
+        column(width = 12, style = 'padding: 5px', plotlyOutput("fifthpiechart"), uiOutput("back")),
+        verbatimTextOutput("fifthpietext")
       ))
     )
   )
