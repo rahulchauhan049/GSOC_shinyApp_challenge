@@ -1,7 +1,7 @@
 library("r2d3")
 library("dplyr")
 library("r2d3")
-source("../../hierarchy/hierarchy.R")
+# source("../../hierarchy/hierarchy.R")
 
 hierarchy <- function(data) {
   data <- na.omit(data[c("phylum", "order", "family", "genus")])
@@ -65,5 +65,6 @@ hierarchy <- function(data) {
   
   return(temp)
 }
+a<- read.csv("../../../data/sampledata.csv")
 
 r2d3(data=hierarchy(read.csv("../../../data/sampledata.csv")),css="src/css/dendogram.css", d3_version = 4, script = "src/js/dendogram.js")

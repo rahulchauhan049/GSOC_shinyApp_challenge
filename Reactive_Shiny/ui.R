@@ -17,12 +17,12 @@ library("plotrix")
 library("highcharter")
 library("tidyr")
 library("ggplot2")
-library(nycflights13)
-library(ggstat)
-library(purrr) # just for `%||%`
+library("nycflights13")
+library("ggstat")
+library("purrr") # just for `%||%`
 library("shinyjs")
-
-
+library("htmlwidgets")
+library("V8")
 # Define UI for application
 columnName <- read.csv("www/csv/columnNames.csv")
 country <- read.csv("www/csv/countrycode.csv")

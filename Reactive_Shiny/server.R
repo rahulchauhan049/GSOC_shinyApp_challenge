@@ -6,12 +6,12 @@
 # library(shiny)
 # library("crosstalk")
 # library(dplyr)
-library("plotly")
+#library("plotly")
 # library(r2d3)
 # library("collapsibleTree")
-library(nycflights13)
-library(ggstat)
-library(htmlwidgets)
+# library(nycflights13)
+# library(ggstat)
+# library(htmlwidgets)
 
 
 js <- c(
