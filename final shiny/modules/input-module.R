@@ -86,7 +86,6 @@ bdFileInput <- function(id, label = "Add Occurrence Data") {
                             )
                         )
                     ),
-                    
                     # checkboxInput(ns("darwinizerControl"),
                     #               label = "Perform Header Cleaning",
                     #               value = TRUE),
@@ -269,25 +268,25 @@ bdFile <- function(input, output, session) {
         }
         
         # ------------ Darwinizing Data -------------
-        
+
         # if (input$darwinizerControl) {
         #     showNotification("Cleaning Headers", duration = 2)
         #     dictionaryPath <-
         #         system.file("txts/customDwCdictionary.txt", package = "bdclean")
         #     customDictionary <-
         #         data.table::fread(file = dictionaryPath)
-        #     
+        #
         #     darwinizer <-
         #         bdDwC::darwinize_names(as.data.frame(returnData), as.data.frame(customDictionary))
-        #     
+        #
         #     fixed <-
         #         darwinizer[darwinizer$matchType == "Darwinized",]
-        #     
+        #
         #     if (nrow(fixed) > 0) {
         #         tidyData <- bdDwC::renameUserData(returnData, darwinizer)
-        # 
+        #
         #         returnData <<- tidyData
-        #         
+        #
         #         showNotification(paste(
         #             "Converted Columns:",
         #             paste(
@@ -336,6 +335,7 @@ bdFile <- function(input, output, session) {
     
     returnDataReact <- reactive({
         # Input actions that need to trigger new dataframe return 
+        inputDataTable
         input$inputFile
         input$queryDatabase
         
