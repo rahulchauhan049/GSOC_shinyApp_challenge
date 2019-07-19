@@ -24,7 +24,7 @@ shinyUI(dashboardPage(
   ),
   dashboardBody(# Boxes need to be put in a row (or column)
     tabItems(
-      tabItem(tabName = "dataInputTab",fluidRow(div(
+      tabItem(tabName = "dataInputTab", fluidRow(div(
         # -------------------------------
         
         bdFileInput("bdFileInput", "User data (.csv format)")
@@ -33,7 +33,15 @@ shinyUI(dashboardPage(
         
         
       ))),
-      tabItem(tabName = "spatialTab"),
+      tabItem(tabName = "spatialTab", fluidRow(div(
+        # -------------------------------
+        
+        taxonomicTab("taxonomicTab", "User data (.csv format)")
+        
+        # -------------------------------
+        
+        
+      ))),
       tabItem(tabName = "taxonomicTab"),
       tabItem(tabName = "temporalTab")
     )  
