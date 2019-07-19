@@ -1,5 +1,16 @@
-library(shinydashboard)
-library(shiny)
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(shiny))
+suppressPackageStartupMessages(library(shinydashboard))
+suppressPackageStartupMessages(library(finch))
+suppressPackageStartupMessages(library(DT))
+suppressPackageStartupMessages(library(bdchecks))
+suppressPackageStartupMessages(library(leaflet))
+suppressPackageStartupMessages(library(finch))
+suppressPackageStartupMessages(library(shinyjs))
+
+
+
+
 
 shinyUI(dashboardPage(
   dashboardHeader(title = "bdvis dashboard"),
@@ -13,7 +24,15 @@ shinyUI(dashboardPage(
   ),
   dashboardBody(# Boxes need to be put in a row (or column)
     tabItems(
-      tabItem(tabName = "dataInputTab"),
+      tabItem(tabName = "dataInputTab",fluidRow(div(
+        # -------------------------------
+        
+        bdFileInput("bdFileInput", "User data (.csv format)")
+        
+        # -------------------------------
+        
+        
+      ))),
       tabItem(tabName = "spatialTab"),
       tabItem(tabName = "taxonomicTab"),
       tabItem(tabName = "temporalTab")
