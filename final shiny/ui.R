@@ -7,6 +7,7 @@ suppressPackageStartupMessages(library(bdchecks))
 suppressPackageStartupMessages(library(leaflet))
 suppressPackageStartupMessages(library(finch))
 suppressPackageStartupMessages(library(shinyjs))
+suppressPackageStartupMessages(library(plotly))
 
 
 
@@ -180,15 +181,15 @@ shinyUI(dashboardPage(
         
         
       ))),
-      tabItem(tabName = "taxonomicTab", fluidRow(div(
+      tabItem(tabName = "taxonomicTab", 
         # -------------------------------
         
-        taxonomicTabUi("taxo", "Taxonomy")
+        taxonomicTabUi("taxo")
         
         # -------------------------------
         
         
-      ))),
+      ),
       tabItem(tabName = "spatialTab", DT::dataTableOutput("a")),
       tabItem(tabName = "temporalTab")
     )  

@@ -3,9 +3,8 @@ library(bdchecks)
 
 returnData <- data.frame()
 
-
 shinyServer(function(input, output, session) {
-  output$a <- DT::renderDataTable(returnData)
+  
   
    map <- leafletProxy("mymap")
   
@@ -178,7 +177,13 @@ shinyServer(function(input, output, session) {
     # TODO
     
   }
+
   
+  # --------- Plotting taxomic plots -------
+
+ callModule(taxonomicTabServer, "taxo", returnData)
+  
+  #----------End of Taxonomic Tab-----------
   
   
 })# Server Ends Here
