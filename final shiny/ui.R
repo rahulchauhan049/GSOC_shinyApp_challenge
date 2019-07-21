@@ -8,6 +8,9 @@ suppressPackageStartupMessages(library(leaflet))
 suppressPackageStartupMessages(library(finch))
 suppressPackageStartupMessages(library(shinyjs))
 suppressPackageStartupMessages(library(plotly))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(bdvis))
+
 
 
 

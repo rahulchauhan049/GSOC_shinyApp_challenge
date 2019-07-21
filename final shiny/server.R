@@ -158,7 +158,7 @@ shinyServer(function(input, output, session) {
           addCircles(~ decimalLongitude, ~ decimalLatitude, color = input$mapColor))
     
     output$inputDataTable <- DT::renderDataTable(DT::datatable({
-      summarizeDataframe(returnData)
+      returnData
     }, options = list(scrollX = TRUE)))
     
     
