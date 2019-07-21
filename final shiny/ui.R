@@ -43,8 +43,8 @@ shinyUI(dashboardPage(
                 tabPanel("Existing Data",
                          selectizeInput("dataSet",
                                         "Select Sample Datasets",
-                                        choices = c( "Mammals"="smallData.csv", "Hyena"="hyenaData.csv"),
-                                        selected = "Mammals"
+                                        choices = c("Hyena"="hyenaData.csv", "Mammals"="smallData.csv"),
+                                        selected = "Hyena"
                                         ),
                          actionButton("loadexisting", "Load New Dataset")
                          ),

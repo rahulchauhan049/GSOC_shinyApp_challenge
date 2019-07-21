@@ -1,7 +1,7 @@
 options(shiny.maxRequestSize = 50 * 1024 ^ 2)
 library(bdchecks)
 
-returnData <- read.csv("smallData.csv")
+returnData <- read.csv("www/csv/hyenaData.csv")
 
 shinyServer(function(input, output, session) {
   
