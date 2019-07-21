@@ -37,9 +37,18 @@ shinyUI(dashboardPage(
             h1("Add Occurrence Data"),
             column(
               3,
-              # ------------- DB Module -------------------
+              
               tabsetPanel(
                 type = "tabs",
+                tabPanel("Existing Data",
+                         selectizeInput("dataSet",
+                                        "Select Sample Datasets",
+                                        choices = c( "Mammals"="smallData.csv", "Hyena"="hyenaData.csv"),
+                                        selected = "Mammals"
+                                        ),
+                         actionButton("loadexisting", "Load New Dataset")
+                         ),
+                # ------------- DB Module -------------------
                 tabPanel(
                   "Download Data",
                   div(class = "secondaryHeaders", h3("Option 01: From Online Database")),

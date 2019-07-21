@@ -1,12 +1,18 @@
 options(shiny.maxRequestSize = 50 * 1024 ^ 2)
 library(bdchecks)
 
-returnData <- data.frame()
+returnData <- read.csv("smallData.csv")
 
 shinyServer(function(input, output, session) {
   
   
+  
    map <- leafletProxy("mymap")
+  
+   observeEvent(input$loadexisting, {
+     returnData <<- read.csv(paste("www/csv/",input$dataSet, sep = ""))
+     dataLoadedTask(returnData)
+   })
   
   
   observeEvent(input$queryDatabase, {
