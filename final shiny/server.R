@@ -186,4 +186,19 @@ shinyServer(function(input, output, session) {
   #----------End of Taxonomic Tab-----------
   
   
+  
+  # --------- Plotting spatial plots -------
+  
+  callModule(spatialServer, "spatial", returnData)
+  
+  #----------End of spatial Tab-----------
+  
+  
+  # --------- Plotting Temporal plots -------
+  
+  callModule(temporalServer, "temporal", returnData)
+  
+  #----------End of Temporal Tab-----------
+  
+  
 })# Server Ends Here

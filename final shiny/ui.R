@@ -190,8 +190,24 @@ shinyUI(dashboardPage(
         
         
       ),
-      tabItem(tabName = "spatialTab", DT::dataTableOutput("a")),
-      tabItem(tabName = "temporalTab")
+      
+      
+      tabItem(tabName = "spatialTab", 
+        # -------------------------------
+              
+        spatialUI("spatial")
+              
+        # -------------------------------              
+      ),
+      
+      
+      tabItem(tabName = "temporalTab",
+        # -------------------------------
+              
+        temporalUI("temporal")
+              
+        # -------------------------------
+      )
     )  
   )#Dashboard Body ends here
 ))#ShinyUi and dashboard Page ends here
