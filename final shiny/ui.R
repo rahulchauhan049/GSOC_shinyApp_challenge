@@ -10,7 +10,9 @@ suppressPackageStartupMessages(library(shinyjs))
 suppressPackageStartupMessages(library(plotly))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(bdvis))
-
+suppressPackageStartupMessages(library("nycflights13"))
+suppressPackageStartupMessages(library("ggstat"))
+suppressPackageStartupMessages(library("purrr")) # just for `%||%`
 
 
 
