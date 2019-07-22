@@ -6,23 +6,60 @@ taxonomicTabUi <- function(id, label = "Taxonomic Plots") {
       title = "Histogram",
       status = "primary",
       solidHeader = TRUE,
-      selectizeInput(ns("taxoBarInput"), "Select Taxonomic Level", 
-                     c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"),
-                     selected = "Order"),
+      height = 540,
+      selectizeInput(
+        ns("taxoBarInput"),
+        "Select Taxonomic Level",
+        c("Kingdom", "Phylum", "Order", "Family", "Genus", "Species"),
+        selected = "Order"
+      ),
       plotlyOutput(ns("taxonomicBar"))
     ),
     box(
-      title = "Histogram",
+      title = "CirclePack",
       status = "primary",
       solidHeader = TRUE,
+      height = 540,
       circlepackeROutput(ns("circleplot"))
-      )
-  )
-  )
+    ),
+    box(
+      title = "DendoTree",
+      status = "primary",
+      solidHeader = TRUE,
+      collapsibleTreeOutput(ns("dendotree"))
+    )
+    
+  ))
 }
 
 taxonomicTabServer <- function(input, output, session, dataset) {
-
+  formatData <- function(data) {
+    data <- na.omit(data[c("phylum", "order", "family", "genus")])
+    if (!nrow(data[-which(data[, "phylum"] == ""), ]) == 0) {
+      data <- data[-which(data[, "phylum"] == ""), ]
+    }
+    if (!nrow(data[-which(data[, "order"] == ""), ]) == 0) {
+      data <- data[-which(data[, "order"] == ""), ]
+    }
+    if (!nrow(data[-which(data[, "family"] == ""), ]) == 0) {
+      data <- data[-which(data[, "family"] == ""), ]
+    }
+    if (!nrow(data[-which(data[, "genus"] == ""), ]) == 0) {
+      data <- data[-which(data[, "genus"] == ""), ]
+    }
+    data <- arrange(data, family)
+    temp <- as.data.frame(table(data["genus"]))
+    data <- unique(data)
+    temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
+    temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
+    colnames(temp) <-
+      c("root", "group", "subgroup", "subsubgroup", "value")
+    
+    return(temp)
+  }
+  
+  
+  
   output$taxonomicBar <- renderPlotly({
     if (input$taxoBarInput == "Kingdom") {
       label <- ~ kingdom
@@ -37,24 +74,54 @@ taxonomicTabServer <- function(input, output, session, dataset) {
     } else{
       label <- ~ order
     }
-    plot_ly(data = dataset, y =label, source = "reactiveBars")
+    plot_ly(data = dataset,
+            y = label,
+            source = "reactiveBars")
   })
-
+  
   output$circleplot <- renderCirclepackeR({
-    data <- formatData(dataset)
-    data$pathString <- paste("Vis", data$group, data$subgroup, data$subsubgroup, sep = "/")
-    population <- as.Node(data)
+    dataforCircle <- formatData(dataset)
+    dataforCircle$pathString <-
+      paste(
+        "Vis",
+        dataforCircle$group,
+        dataforCircle$subgroup,
+        dataforCircle$subsubgroup,
+        sep = "/"
+      )
+    population <- as.Node(dataforCircle)
     # Make the plot
     circlepackeR(population, size = "value")
   })
   
+  output$dendotree <- renderCollapsibleTree({
+    temp <- formatData(dataset)
+    temp %>%
+      group_by(root, group, subgroup, subsubgroup) %>%
+      summarize(`Freq` = n()) %>%
+      collapsibleTreeSummary(
+        hierarchy = c("group", "subgroup", "subsubgroup"),
+        root = "Geography",
+        width = "100%",
+        attribute = "Freq",
+        zoomable = FALSE
+      )
+  })
+  
   observe({
-    select <- event_data("plotly_click", source ="reactiveBars")
-    if(is.null(select)){
+    select <- event_data("plotly_click", source = "reactiveBars")
+    if (is.null(select)) {
       output$circleplot <- renderCirclepackeR({
-        data <- formatData(dataset)
-        data$pathString <- paste("Vis", data$group, data$subgroup, data$subsubgroup, sep = "/")
-        population <- as.Node(data)
+        dataforCircle <- formatData(dataset)
+        dataforCircle$pathString <-
+          paste(
+            "Vis",
+            dataforCircle$group,
+            dataforCircle$subgroup,
+            dataforCircle$subsubgroup,
+            sep = "/"
+          )
+        population <- as.Node(dataforCircle)
         # Make the plot
         circlepackeR(population, size = "value")
       })
@@ -72,49 +139,42 @@ taxonomicTabServer <- function(input, output, session, dataset) {
       } else{
         newData <- dataset %>% filter(order %in% select)
       }
-      if(nrow(newData)==0){
+      if (nrow(newData) == 0) {
         output$circleplot <- renderCirclepackeR({
-          data <- formatData(dataset)
-          data$pathString <- paste("Vis", data$group, data$subgroup, data$subsubgroup, sep = "/")
-          population <- as.Node(data)
+          dataforCircle <- formatData(dataset)
+          dataforCircle$pathString <-
+            paste(
+              "Vis",
+              dataforCircle$group,
+              dataforCircle$subgroup,
+              dataforCircle$subsubgroup,
+              sep = "/"
+            )
+          population <- as.Node(dataforCircle)
           # Make the plot
           circlepackeR(population, size = "value")
         })
       } else {
-      output$circleplot <- renderCirclepackeR({
-        data <- formatData(newData)
-        data$pathString <- paste("Vis", data$group, data$subgroup, data$subsubgroup, sep = "/")
-        population <- as.Node(data)
-        # Make the plot
-        circlepackeR(population, size = "value")
-      })
+        output$circleplot <- renderCirclepackeR({
+          dataforCircle <- formatData(newData)
+          dataforCircle$pathString <-
+            paste(
+              "Vis",
+              dataforCircle$group,
+              dataforCircle$subgroup,
+              dataforCircle$subsubgroup,
+              sep = "/"
+            )
+          population <- as.Node(dataforCircle)
+          # Make the plot
+          circlepackeR(population, size = "value")
+        })
       }
     }
-    })
+  })
+  
+  
   
 }
 
 #Functions.................................................
-formatData <- function(data){
-  data <- na.omit(data[c("phylum", "order", "family", "genus")])
-  if (!nrow(data[-which(data[, "phylum"] == ""),]) == 0) {
-    data <- data[-which(data[, "phylum"] == ""),]
-  }
-  if (!nrow(data[-which(data[, "order"] == ""),]) == 0) {
-    data <- data[-which(data[, "order"] == ""),]
-  } 
-  if (!nrow(data[-which(data[, "family"] == ""),]) == 0) {
-    data <- data[-which(data[, "family"] == ""),]
-  } 
-  if (!nrow(data[-which(data[, "genus"] == ""),]) == 0) {
-    data <- data[-which(data[, "genus"] == ""),]
-  } 
-  data <- arrange(data, family)
-  temp <- as.data.frame(table(data["genus"]))
-  data <- unique(data)
-  temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
-  temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
-  colnames(temp) <- c("root","group","subgroup", "subsubgroup","value")
-  
-  return(temp)
-}

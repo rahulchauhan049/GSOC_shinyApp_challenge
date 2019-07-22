@@ -13,8 +13,9 @@ suppressPackageStartupMessages(library(bdvis))
 suppressPackageStartupMessages(library("nycflights13"))
 suppressPackageStartupMessages(library("ggstat"))
 suppressPackageStartupMessages(library("purrr")) # just for `%||%`
-library(data.tree)
-library(circlepackeR)
+suppressPackageStartupMessages(library(data.tree))
+suppressPackageStartupMessages(library(circlepackeR))
+suppressPackageStartupMessages(library(collapsibleTree))
 
 
 
