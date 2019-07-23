@@ -21,14 +21,13 @@ taxonomicTabUi <- function(id, label = "Taxonomic Plots") {
       solidHeader = TRUE,
       height = 540,
       circlepackeROutput(ns("circleplot"))
-    ),
-    box(
-      title = "DendoTree",
-      status = "primary",
-      solidHeader = TRUE,
-      collapsibleTreeOutput(ns("dendotree"))
     )
-    
+    # box(
+    #   title = "DendoTree",
+    #   status = "primary",
+    #   solidHeader = TRUE,
+    #   collapsibleTreeOutput(ns("dendotree"))
+    # )
   ))
 }
 
@@ -107,6 +106,8 @@ taxonomicTabServer <- function(input, output, session, dataset) {
         zoomable = FALSE
       )
   })
+  
+ 
   
   observe({
     select <- event_data("plotly_click", source = "reactiveBars")

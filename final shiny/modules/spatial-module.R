@@ -78,6 +78,7 @@ spatialServer <- function(input, output, session, dataset) {
     leaflet("mapplot", data = dataset) %>% addProviderTiles(input$mapTexture) %>%
       addCircles(~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
   })
+  
   observeEvent(input$mapTexture, {
     if (length(dataset) == 0) {
       return(NULL)
@@ -103,7 +104,6 @@ spatialServer <- function(input, output, session, dataset) {
         clearShapes() %>%
         addCircles(~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
     } else {
-      dataset <- read.csv("www/csv/hyenaData.csv")
       newData <- dataset %>% filter(identifiedBy %in% select$x)
       leafletProxy("mapplot", data = newData) %>%
         clearShapes() %>%
@@ -121,7 +121,8 @@ spatialServer <- function(input, output, session, dataset) {
   
   
   #For Drill down bar Chart with time data......................
-  dataForBar <- format_bdvis(dataset, source = 'rgbif')
+  dataForBarReactive <- reactive({
+  dataForBar <-  format_bdvis(dataset, source = 'rgbif')
   
   
   names(dataForBar) = gsub("\\.", "_", names(dataForBar))
@@ -146,7 +147,9 @@ spatialServer <- function(input, output, session, dataset) {
   dataForBar <- arrange(dataForBar, as.numeric(dataForBar$monthofYear))
   dataForBar <- dataForBar[c("genus", "species", "monthofYear")]
   dataForBar <- na.omit(dataForBar)
-  categoriesbar <- unique(dataForBar$genus)
+    return(dataForBar)
+  })
+  categoriesbar <- reactive(unique(dataForBarReactive()$genus))
   #...............................................................................
   
   
@@ -157,9 +160,9 @@ spatialServer <- function(input, output, session, dataset) {
   # report sales by category, unless a category is chosen
   mammals_data <- reactive({
     if (!length(current_categorybar())) {
-      return(count(dataForBar, genus))
+      return(count(dataForBarReactive(), genus))
     }
-    dataForBar %>%
+    dataForBarReactive() %>%
       filter(genus %in% current_categorybar()) %>%
       count(species)
   })
@@ -178,9 +181,9 @@ spatialServer <- function(input, output, session, dataset) {
   # same as sales_data
   mammals_data_time <- reactive({
     if (!length(current_categorybar())) {
-      return(count(dataForBar, genus, monthofYear))
+      return(count(dataForBarReactive(), genus, monthofYear))
     }
-    dataForBar %>%
+    dataForBarReactive() %>%
       filter(genus %in% current_categorybar()) %>%
       count(species, monthofYear)
   })
@@ -196,7 +199,7 @@ spatialServer <- function(input, output, session, dataset) {
   # update the current category if the clicked value matches a category
   observe({
     cd <- event_data("plotly_click", source = "barwithtime")$x
-    if (isTRUE(cd %in% categoriesbar))
+    if (isTRUE(cd %in% categoriesbar()))
       current_categorybar(cd)
   })
   
