@@ -7,10 +7,10 @@ inputTabUi <- function(id) {
     tagList(
       column(
         12,
-        h1("Add Occurrence Data"),
+        
         column(
           3,
-          
+          h1("Add Occurrence Data"),
           tabsetPanel(
             type = "tabs",
             tabPanel("Existing Data",
@@ -69,7 +69,7 @@ inputTabUi <- function(id) {
               div(
                 id = "queryDatabaseDiv",
                 class = "activeButton",
-                actionButton("queryDatabase", "Query Database", icon("download"))
+                actionButton(ns("queryDatabase"), "Query Database", icon("download"))
               ),
               br()
             ),
@@ -133,12 +133,12 @@ inputTabUi <- function(id) {
                    ))),
         
         # ------------- Map / Table Module -------------------
-        column(9,
+        column(6,
                tabsetPanel(
                  type = "tabs",
                  tabPanel(
                    "Map View",
-                   leafletOutput(ns("mymap"), height = "700"),
+                   leafletOutput(ns("mymap"), height = "400"),
                    absolutePanel(
                      top = 60,
                      right = 20,
@@ -171,7 +171,18 @@ inputTabUi <- function(id) {
                    ),
                    DT::dataTableOutput(ns("inputDataTable"))
                  )
-               ))
+               )),
+        column(3,
+               "#Missing Records", verbatimTextOutput(ns("missing")),
+               "#Latitude", verbatimTextOutput(ns("latitude")),
+               "#Longitude", verbatimTextOutput(ns("longitude")),
+               "#No. of Countries", verbatimTextOutput(ns("country")),
+               "#No. of Order", verbatimTextOutput(ns("order")),
+               "#No. of Family", verbatimTextOutput(ns("family")),
+               "#No. of Genus", verbatimTextOutput(ns("genus")),
+               "#No. of Species", verbatimTextOutput(ns("species"))
+             
+               )
         
         # ------------- End of Map/Table Module -------------------
       )
@@ -185,7 +196,7 @@ inputTabUi <- function(id) {
 }
 
 inputTabServer <- function(input, output, session) {
-  returnData <- read.csv("smallData.csv")
+  returnData <- read.csv("www/csv/smallData.csv")
   map <- leafletProxy("mymap")
   
   observeEvent(input$loadexisting, {
@@ -300,12 +311,34 @@ inputTabServer <- function(input, output, session) {
   }, options = list(scrollX = TRUE)))
   
   
-  #----------------Flag Text------------------------------------------
+  #----------------Info Text------------------------------------------
   output$inputDataRows <- renderText(nrow(returnData))
   output$inputDataColumns <- renderText(length(returnData))
   output$inputDataSpecies <-
     renderText(nrow(unique(returnData["scientificName"])))
   
+  output$missing <- renderPrint({
+    sum(is.na(returnData)) 
+  })
+  
+  output$latitude <- renderPrint({
+    latitude <- na.omit(returnData["decimalLatitude"])
+    latitude <-nrow(latitude)
+    return(latitude)
+  })
+  
+  output$longitude <- renderPrint({
+    longitude <- na.omit(returnData["decimalLongitude"])
+    longitude <-nrow(longitude)
+    return(longitude)
+  })
+  
+  output$country <- renderPrint(nrow(unique(na.omit(returnData["countryCode"]))))
+  
+  output$order <- renderPrint({nrow(unique(na.omit(returnData["order"])))})
+  output$family <- renderPrint({nrow(unique(na.omit(returnData["family"])))})
+  output$genus <- renderPrint({nrow(unique(na.omit(returnData["genus"])))})
+  output$species <- renderPrint({nrow(unique(na.omit(returnData["species"])))})
   
   
   
@@ -321,6 +354,27 @@ inputTabServer <- function(input, output, session) {
     output$inputDataColumns <- renderText(length(returnData))
     output$inputDataSpecies <-
       renderText(nrow(unique(returnData["scientificName"])))
+    output$missing <- renderPrint({
+      sum(is.na(returnData)) 
+    })
+    
+    output$latitude <- renderPrint({
+      latitude <- na.omit(returnData["decimalLatitude"])
+      latitude <-nrow(latitude)
+      return(latitude)
+    })
+    
+    output$longitude <- renderPrint({
+      longitude <- na.omit(returnData["decimalLongitude"])
+      longitude <-nrow(longitude)
+      return(longitude)
+    })
+    
+    output$country <- renderPrint({nrow(unique(na.omit(returnData["countryCode"])))})
+    output$order <- renderPrint({nrow(unique(na.omit(returnData["order"])))})
+    output$family <- renderPrint({nrow(unique(na.omit(returnData["family"])))})
+    output$genus <- renderPrint({nrow(unique(na.omit(returnData["genus"])))})
+    output$species <- renderPrint({nrow(unique(na.omit(returnData["species"])))})
     
     # ------------ Darwinizing Data -------------
     

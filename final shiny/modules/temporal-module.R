@@ -35,8 +35,7 @@ temporalUI <- function(id, label = "Temporal Plots") {
 }
 
 temporalServer <- function(input, output, session, dataset) {
-  dataForBarReact <- reactive({
-    dataset <- read.csv("smallData.csv")
+  formattedData <- reactive({
   dataForBar <- format_bdvis(dataset, source = 'rgbif')
   
   
@@ -62,21 +61,17 @@ temporalServer <- function(input, output, session, dataset) {
   return(dataForBar)
   })
   
-  datasetForPlotly <- reactive({
-
-  dataForBar <- arrange(dataForBar, as.numeric(dataForBar$Year_))
-  dataForBar <- dataForBar[c(input$barselect, "Year_")]
-  
-  dataForBar <-
-    data.frame(table(dataForBar)) %>% rename(group = input$barselect,
-                                             variable = Year_,
-                                             value = Freq)
-  return(dataForBar)
-  })
   
   output$bar <- renderPlotly({
+    dataForBar <- arrange(formattedData(), as.numeric(formattedData()$Year_))
+    dataForBar <- dataForBar[c(input$barselect, "Year_")]
+    
+    dataForBar <-
+      data.frame(table(dataForBar)) %>% rename(group = input$barselect,
+                                               variable = Year_,
+                                               value = Freq)
     plot_ly(
-      datasetForPlotly(),
+      dataForBar,
       source = "barselected",
       x = ~ variable,
       y = ~ value,
@@ -219,9 +214,8 @@ temporalServer <- function(input, output, session, dataset) {
     select <- event_data("plotly_click", source = "barselected")
     if(is.null(select)){
       output$roseplot <- renderPlot({
-        dataForRose <-
-          cbind(dataset[c("basisOfRecord", "kingdom", "phylum", "order", "family", "genus", "species")], dayofYear, weekofYear, monthofYear, Year_)
-        dataForRose <- arrange(dataForRose, as.numeric(dataForRose$monthofYear))
+        
+        dataForRose <- arrange(formattedData(), as.numeric(formattedData()$monthofYear))
         dataForRose <- dataForRose[c("basisOfRecord", "monthofYear")]
         if (!nrow(dataForRose[-which(dataForRose[, "basisOfRecord"] == ""),]) == 0) {
           dataForRose <- dataForRose[-which(dataForRose[, "basisOfRecord"] == ""),]
@@ -242,9 +236,8 @@ temporalServer <- function(input, output, session, dataset) {
       })
     } else {
       output$roseplot <- renderPlot({
-      dataForRose <-
-        cbind(dataset[c("basisOfRecord", "kingdom", "phylum", "order", "family", "genus", "species")], dayofYear, weekofYear, monthofYear, Year_)
-      dataForRose <- dataForRose %>% filter(Year_ %in% as.numeric(select))
+    
+      dataForRose <- formattedData() %>% filter(Year_ %in% as.numeric(select))
       dataForRose <- arrange(dataForRose, as.numeric(dataForRose$monthofYear))
       dataForRose <- dataForRose[c("basisOfRecord", "monthofYear")]
       if (!nrow(dataForRose[-which(dataForRose[, "basisOfRecord"] == ""),]) == 0) {

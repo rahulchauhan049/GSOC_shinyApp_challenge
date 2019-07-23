@@ -1,4 +1,4 @@
-options(shiny.maxRequestSize = 50 * 1024 ^ 2)
+options(shiny.maxRequestSize = 5000 * 1024 ^ 2)
 library(bdchecks)
 
 inputDataset <- data.frame()
