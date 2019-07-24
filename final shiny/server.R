@@ -1,7 +1,4 @@
-options(shiny.maxRequestSize = 5000 * 1024 ^ 2)
-library(bdchecks)
 
-inputDataset <- data.frame()
 shinyServer(function(input, output, session) {
   
   inputDataset <- callModule(inputTabServer, "input")

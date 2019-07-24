@@ -3,7 +3,6 @@ inputTabUi <- function(id) {
   
   fluidRow(div(
     # -------------------------------
-    
     tagList(
       column(
         12,
@@ -16,7 +15,7 @@ inputTabUi <- function(id) {
             tabPanel("Existing Data",
                      selectizeInput(ns("dataSet"),
                                     "Select Sample Datasets",
-                                    choices = c("Hyena"="hyenaData.csv", "Mammals"="smallData.csv"),
+                                    choices = c( "Mammals"="smallData.csv", "Hyena"="hyenaData.csv"),
                                     selected = "Hyena"
                      ),
                      actionButton(ns("loadexisting"), "Load New Dataset")
@@ -196,15 +195,17 @@ inputTabUi <- function(id) {
 }
 
 inputTabServer <- function(input, output, session) {
+  #Initially loaded data
   returnData <- read.csv("www/csv/smallData.csv")
   map <- leafletProxy("mymap")
   
+  #when user click on button called load existing dataset
   observeEvent(input$loadexisting, {
     returnData <<- read.csv(paste("www/csv/",input$dataSet, sep = ""))
     dataLoadedTask(returnData)
   })
   
-  
+  #when user click on button called Query Database
   observeEvent(input$queryDatabase, {
     withProgress(message = paste("Querying", input$queryDB, "..."), {
       if (input$queryDB == "gbif") {
@@ -253,6 +254,7 @@ inputTabServer <- function(input, output, session) {
     
   })
   
+  #When user click on upload dataset
   observeEvent(input$inputFile, {
     withProgress(message = paste("Reading", input$inputFile$name, "..."), {
       
@@ -275,7 +277,7 @@ inputTabServer <- function(input, output, session) {
     
   })
   
-  
+  #when user change design of map
   observeEvent(input$mapTexture, {
     if (length(returnData) == 0) {
       return(NULL)
@@ -285,6 +287,7 @@ inputTabServer <- function(input, output, session) {
       addCircles(~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
   })
   
+  #when user change color of map points
   observeEvent(input$mapColor, {
     if (length(returnData) == 0) {
       return(NULL)
@@ -294,13 +297,14 @@ inputTabServer <- function(input, output, session) {
       addCircles(~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
   })
   
-  
+  #Load map with initially loaded data
   output$mymap <- renderLeaflet({
     leaflet() %>%
       addProviderTiles(input$mapTexture) %>%
       setView(0, 0, zoom = 2)
   })
   
+  #Load Table with initial Dataset
   output$inputDataTable <- DT::renderDataTable(DT::datatable({
     tableData <- returnData[c("identifiedBy", "scientificName", "family", "genus")]
     tableData <- na.omit(tableData)
@@ -311,7 +315,7 @@ inputTabServer <- function(input, output, session) {
   }, options = list(scrollX = TRUE)))
   
   
-  #----------------Info Text------------------------------------------
+  #----------------Info About Data------------------------------------------
   output$inputDataRows <- renderText(nrow(returnData))
   output$inputDataColumns <- renderText(length(returnData))
   output$inputDataSpecies <-
@@ -340,9 +344,10 @@ inputTabServer <- function(input, output, session) {
   output$genus <- renderPrint({nrow(unique(na.omit(returnData["genus"])))})
   output$species <- renderPrint({nrow(unique(na.omit(returnData["species"])))})
   
+  #-----------------------Info of data ends here--------------------------------
   
   
-  
+  #This function run when user change dataset-------------------------------
   dataLoadedTask <- function(data) {
     if (length(data) == 0) {
       showNotification("Empty data returned! Try different setting.",
@@ -376,37 +381,7 @@ inputTabServer <- function(input, output, session) {
     output$genus <- renderPrint({nrow(unique(na.omit(returnData["genus"])))})
     output$species <- renderPrint({nrow(unique(na.omit(returnData["species"])))})
     
-    # ------------ Darwinizing Data -------------
-    
-    # if (input$darwinizerControl) {
-    #     showNotification("Cleaning Headers", duration = 2)
-    #     dictionaryPath <-
-    #         system.file("txts/customDwCdictionary.txt", package = "bdclean")
-    #     customDictionary <-
-    #         data.table::fread(file = dictionaryPath)
-    #
-    #     darwinizer <-
-    #         bdDwC::darwinize_names(as.data.frame(returnData), as.data.frame(customDictionary))
-    #
-    #     fixed <-
-    #         darwinizer[darwinizer$matchType == "Darwinized",]
-    #
-    #     if (nrow(fixed) > 0) {
-    #         tidyData <- bdDwC::renameUserData(returnData, darwinizer)
-    #
-    #         returnData <<- tidyData
-    #
-    #         showNotification(paste(
-    #             "Converted Columns:",
-    #             paste(
-    #                 paste(fixed[, 1], collapse = ", "),
-    #                 paste(fixed[, 2], collapse = ", "),
-    #                 sep = " -> "
-    #             )
-    #         ),
-    #         duration = 7)
-    #     }
-    # }
+
     
     if ("decimalLatitude" %in% colnames(returnData)) {
       returnData$decimalLatitude <<-
@@ -446,6 +421,8 @@ inputTabServer <- function(input, output, session) {
     # TODO
     
   }
+  
+  
   returnDataReact <- reactive({
     # Input actions that need to trigger new dataframe return
     input$dataset
@@ -454,6 +431,6 @@ inputTabServer <- function(input, output, session) {
     
     returnData
   })
-  
+  #Return Dataset so it can be used by other tabs
   return(returnDataReact)
 }

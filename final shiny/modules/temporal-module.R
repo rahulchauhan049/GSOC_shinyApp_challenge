@@ -35,6 +35,7 @@ temporalUI <- function(id, label = "Temporal Plots") {
 }
 
 temporalServer <- function(input, output, session, dataset) {
+  #Format dataset so that it can be used by plotly
   formattedData <- reactive({
   dataForBar <- format_bdvis(dataset, source = 'rgbif')
   
@@ -61,7 +62,7 @@ temporalServer <- function(input, output, session, dataset) {
   return(dataForBar)
   })
   
-  
+  #Plot bar graph
   output$bar <- renderPlotly({
     dataForBar <- arrange(formattedData(), as.numeric(formattedData()$Year_))
     dataForBar <- dataForBar[c(input$barselect, "Year_")]
@@ -81,6 +82,7 @@ temporalServer <- function(input, output, session, dataset) {
     
   })
   
+  #plot pie chart
   output$pie <- renderPlotly({
     if (input$pieselect == "kingdom") {
       label <- ~ kingdom
@@ -114,6 +116,8 @@ temporalServer <- function(input, output, session, dataset) {
     )
   })
   
+  
+  #Observe for change in bar graph and redraw pie chart
   observe({
   select <- event_data("plotly_click", source = "barselected")
   if (is.null(select)){
@@ -150,6 +154,7 @@ temporalServer <- function(input, output, session, dataset) {
       )
     })
   } else {
+    #create new dataset based on where user clicked on bar graph
     newData <- dataset %>% filter(year %in% as.numeric(select))
     output$pie <- renderPlotly({
       if (input$pieselect == "kingdom") {
@@ -167,6 +172,7 @@ temporalServer <- function(input, output, session, dataset) {
       } else {
         label <- ~ basisOfRecord
       }
+      #Remove blank data from column(Blank! Not NA)
       if (!nrow(newData[-which(newData[, input$pieselect] == ""),]) == 0) {
         newData <- newData[-which(newData[, input$pieselect] == ""),]
       } 
@@ -185,7 +191,7 @@ temporalServer <- function(input, output, session, dataset) {
   
     })
   
-  
+  #Draw Roseplot
   output$roseplot <- renderPlot({
     dataForRose <-
       cbind(dataset[c("basisOfRecord", "kingdom", "phylum", "order", "family", "genus", "species")], dayofYear, weekofYear, monthofYear, Year_)
@@ -210,6 +216,7 @@ temporalServer <- function(input, output, session, dataset) {
     
   })
   
+  #redraw roseplot when any change made in barplot
   observe({
     select <- event_data("plotly_click", source = "barselected")
     if(is.null(select)){

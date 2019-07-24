@@ -10,14 +10,21 @@ suppressPackageStartupMessages(library(shinyjs))
 suppressPackageStartupMessages(library(plotly))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(bdvis))
-suppressPackageStartupMessages(library("nycflights13"))
-suppressPackageStartupMessages(library("ggstat"))
-suppressPackageStartupMessages(library("purrr")) # just for `%||%`
+suppressPackageStartupMessages(library(nycflights13))
+suppressPackageStartupMessages(library(ggstat))
+suppressPackageStartupMessages(library(purrr)) # just for `%||%`
 suppressPackageStartupMessages(library(data.tree))
 suppressPackageStartupMessages(library(circlepackeR))
 suppressPackageStartupMessages(library(collapsibleTree))
-suppressPackageStartupMessages(library("networkD3"))
+suppressPackageStartupMessages(library(networkD3))
+suppressPackageStartupMessages(library(bdchecks))
+
 source("modules/inputData-module.R")
 source("modules/taxonomic-module.R")
 source("modules/spatial-module.R")
 source("modules/temporal-module.R")
+
+options(shiny.maxRequestSize = 5000 * 1024 ^ 2)
+
+inputDataset <- data.frame()
+
