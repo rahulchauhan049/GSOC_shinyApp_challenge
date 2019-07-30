@@ -124,7 +124,7 @@ inputTabUi <- function(id) {
                        color = "purple"
                      ),
                      infoBox(
-                       "# of Unique Scientific Names",
+                       "# of Scientific Names",
                        textOutput(ns("inputDataSpecies")),
                        icon = icon("paw"),
                        color = "yellow"
@@ -196,7 +196,7 @@ inputTabUi <- function(id) {
 
 inputTabServer <- function(input, output, session) {
   #Initially loaded data
-  returnData <- read.csv("www/csv/smallData.csv")
+  returnData <- read.csv("www/csv/hyenaData.csv")
   map <- leafletProxy("mymap")
   
   #when user click on button called load existing dataset

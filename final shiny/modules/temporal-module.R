@@ -6,6 +6,7 @@ temporalUI <- function(id, label = "Temporal Plots") {
       title = "Year Bar Chart",
       status = "primary",
       solidHeader = TRUE,
+      height = 540,
       selectInput(
         ns("barselect"),
         "Select Column to be displayed",
@@ -13,6 +14,12 @@ temporalUI <- function(id, label = "Temporal Plots") {
         selected = "basisOfRecord"
       ),
       plotlyOutput(ns("bar"))
+    ),
+    box(title = "Rose Plot",
+        status = "primary",
+        solidHeader = TRUE,
+        height = 540,
+        plotOutput(ns("roseplot"))
     ),
     box(
       title = "Pie Chart",
@@ -25,12 +32,7 @@ temporalUI <- function(id, label = "Temporal Plots") {
         selected = "basisOfRecord"
       ),
       plotlyOutput(ns("pie"))
-    ),
-    box(title = "Pie Chart",
-        status = "primary",
-        solidHeader = TRUE,
-        plotOutput(ns("roseplot"))
-        )
+    )
   ))
 }
 
