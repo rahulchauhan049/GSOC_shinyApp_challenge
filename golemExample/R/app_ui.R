@@ -5,7 +5,7 @@ app_ui <- function() {
     golem_add_external_resources(),
     # List the first level UI elements here 
     fluidPage(
-      h1("golem")
+      h1("golemExample")
     )
   )
 }
@@ -14,7 +14,7 @@ app_ui <- function() {
 golem_add_external_resources <- function(){
   
   addResourcePath(
-    'www', system.file('app/www', package = 'golem')
+    'www', system.file('app/www', package = 'golemExample')
   )
  
   tags$head(
