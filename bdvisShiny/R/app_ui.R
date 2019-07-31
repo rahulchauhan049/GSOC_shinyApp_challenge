@@ -46,19 +46,19 @@ app_ui <- function() {
                 # -------------------------------
                 mod_input_ui("input_ui_1")
                 # -------------------------------
+        ),
+        
+        
+        tabItem(tabName = "spatialTab",
+                # -------------------------------
+
+                mod_spatial_ui("spatial_ui_1")
+
+                # -------------------------------
         )
       #   
       #   
-      #   tabItem(tabName = "taxonomicTab", 
-      #           # -------------------------------
-      #           
-      #           taxonomicTabUi("taxo")
-      #           
-      #           # -------------------------------
-      #   ),
-      #   
-      #   
-      #   tabItem(tabName = "spatialTab", 
+      #   tabItem(tabName = "TaxonomicTab", 
       #           # -------------------------------
       #           
       #           spatialUI("spatial")

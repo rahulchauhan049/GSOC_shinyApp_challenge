@@ -7,7 +7,7 @@
 \usage{
 mod_spatial_ui(id)
 
-mod_spatial_server(input, output, session)
+mod_spatial_server(input, output, session, dataset)
 }
 \arguments{
 \item{id}{shiny id}
