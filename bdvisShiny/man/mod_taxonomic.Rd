@@ -7,7 +7,7 @@
 \usage{
 mod_taxonomic_ui(id)
 
-mod_taxonomic_server(input, output, session)
+mod_taxonomic_server(input, output, session, dataset)
 }
 \arguments{
 \item{id}{shiny id}

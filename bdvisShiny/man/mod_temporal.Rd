@@ -7,7 +7,7 @@
 \usage{
 mod_temporal_ui(id)
 
-mod_temporal_server(input, output, session)
+mod_temporal_server(input, output, session, dataset)
 }
 \arguments{
 \item{id}{shiny id}
