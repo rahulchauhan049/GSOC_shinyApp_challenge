@@ -13,7 +13,25 @@ Imports:
     attempt,
     DT,
     glue,
-    htmltools
+    htmltools,
+    thinkr,
+    data.table,
+    shinydashboard,
+    finch,
+    bdchecks,
+    leaflet,
+    shinyjs,
+    plotly,
+    dplyr,
+    bdvis,
+    nycflights13,
+    ggstat,
+    purrr,
+    data.tree,
+    circlepackeR,
+    collapsibleTree,
+    networkD3,
+    pkgload
 RoxygenNote: 6.1.1
 Suggests: 
-    testthat
+    testthat (>= 2.1.0)

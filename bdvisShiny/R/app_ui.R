@@ -1,12 +1,28 @@
 #' @import shiny
+#' @import data.table
+#' @import shinydashboard
+#' @import finch
+#' @import DT
+#' @import bdchecks
+#' @import leaflet
+#' @import shinyjs
+#' @import plotly
+#' @import dplyr
+#' @import bdvis
+#' @import nycflights13
+#' @import ggstat
+#' @import purrr
+#' @import data.table
+#' @import circlepackeR
+#' @import collapsibleTree
+#' @import networkD3
+#' @import bdchecks
 suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(shiny))
 suppressPackageStartupMessages(library(shinydashboard))
 suppressPackageStartupMessages(library(finch))
 suppressPackageStartupMessages(library(DT))
 suppressPackageStartupMessages(library(bdchecks))
 suppressPackageStartupMessages(library(leaflet))
-suppressPackageStartupMessages(library(finch))
 suppressPackageStartupMessages(library(shinyjs))
 suppressPackageStartupMessages(library(plotly))
 suppressPackageStartupMessages(library(dplyr))
@@ -21,9 +37,9 @@ suppressPackageStartupMessages(library(networkD3))
 suppressPackageStartupMessages(library(bdchecks))
 
 app_ui <- function() {
-  golem_add_external_resources()
+  # golem_add_external_resources()
   dashboardPage(
-    dashboardHeader(title = "bdvis dashboard"),
+    dashboardHeader(title="bdvis dashboard"),
     
     #----------------------SideBar Start-------------------------------------
     dashboardSidebar(
@@ -41,7 +57,7 @@ app_ui <- function() {
     #----------------------Body Start-------------------------------------
     dashboardBody(# Boxes need to be put in a row (or column)
       tabItems(
-      #   
+         
         tabItem(tabName = "dataInputTab",
                 # -------------------------------
                 mod_input_ui("input_ui_1")
@@ -85,18 +101,18 @@ app_ui <- function() {
 }
 
 #' @import shiny
-golem_add_external_resources <- function(){
-  
-  addResourcePath(
-    'www', system.file('app/www', package = 'bdvisShiny')
-  )
- 
-  tags$head(
-    golem::activate_js(),
-    golem::favicon()
-    # Add here all the external resources
-    # If you have a custom.css in the inst/app/www
-    # Or for example, you can add shinyalert::useShinyalert() here
-    #tags$link(rel="stylesheet", type="text/css", href="www/custom.css")
-  )
-}
+# golem_add_external_resources <- function(){
+#   
+#   addResourcePath(
+#     'www', system.file('app/www', package = 'bdvisShiny')
+#   )
+#  
+#   tags$head(
+#     golem::activate_js(),
+#     golem::favicon()
+#     # Add here all the external resources
+#     # If you have a custom.css in the inst/app/www
+#     # Or for example, you can add shinyalert::useShinyalert() here
+#     #tags$link(rel="stylesheet", type="text/css", href="www/custom.css")
+#   )
+# }
