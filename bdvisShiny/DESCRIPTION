@@ -1,0 +1,19 @@
+Package: bdvisShiny
+Title: bdvisShiny
+Version: 0.0.0.9000
+Authors@R: person('Rahul', 'Chauhan', email = 'rahul.chauhan049@gmail.com', role = c('cre', 'aut'))
+Description: Shiny package to use bdvis visulaization.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    shiny,
+    golem,
+    processx,
+    attempt,
+    DT,
+    glue,
+    htmltools
+RoxygenNote: 6.1.1
+Suggests: 
+    testthat
