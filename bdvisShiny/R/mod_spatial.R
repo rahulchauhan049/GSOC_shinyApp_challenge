@@ -25,7 +25,6 @@ mod_spatial_ui <- function(id){
     box(
       title = "LeafLet Map",
       status = "primary",
-      solidHeader = TRUE,
       leafletOutput(ns("mapplot")),
       absolutePanel(
         top = 60,

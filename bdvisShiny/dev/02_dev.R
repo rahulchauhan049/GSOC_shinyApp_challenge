@@ -7,6 +7,7 @@
 
 ## 2.1 Add modules
 ## 
+golem::add_module( name = "dataInput" )
 golem::add_module( name = "input" ) # Name of the module
 golem::add_module( name = "spatial" )
 golem::add_module( name = "temporal" )

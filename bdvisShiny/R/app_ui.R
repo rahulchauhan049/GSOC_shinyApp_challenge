@@ -37,14 +37,15 @@ suppressPackageStartupMessages(library(networkD3))
 suppressPackageStartupMessages(library(bdchecks))
 
 app_ui <- function() {
-  # golem_add_external_resources()
-  dashboardPage(
+  
+  dashboardPage(skin="green",
     dashboardHeader(title="bdvis dashboard"),
     
     #----------------------SideBar Start-------------------------------------
     dashboardSidebar(
       sidebarMenu(
         menuItem("Data Input", tabName = "dataInputTab", icon = icon("database")),
+        menuItem("Data Summary", tabName = "dataSummary", icon = icon("database")),
         menuItem("Spatial Visualization", tabName = "spatialTab", icon = icon("map-marked")),
         menuItem("Taxonomic Visualization", tabName = "taxonomicTab", icon = icon("connectdevelop")),
         menuItem("Temporal Visualization", tabName = "temporalTab", icon = icon("clock"))
@@ -55,42 +56,51 @@ app_ui <- function() {
     
     
     #----------------------Body Start-------------------------------------
-    dashboardBody(# Boxes need to be put in a row (or column)
+    dashboardBody(
+      golem_add_external_resources(),
+      # Boxes need to be put in a row (or column)
       tabItems(
          
-        tabItem(tabName = "dataInputTab",
+        tabItem(tabName = "dataSummary",
                 # -------------------------------
                 mod_input_ui("input_ui_1")
                 # -------------------------------
         ),
         
         
-        tabItem(tabName = "spatialTab",
+        tabItem(tabName = "dataInputTab",
                 # -------------------------------
-
-                mod_spatial_ui("spatial_ui_1")
-
-                # -------------------------------
-        ),
-      
-        
-        
-        tabItem(tabName = "taxonomicTab",
-                # -------------------------------
-
-                mod_taxonomic_ui("taxonomic_ui_1")
-
-                # -------------------------------
-        ),
-
-
-        tabItem(tabName = "temporalTab",
-                # -------------------------------
-
-                mod_temporal_ui("temporal_ui_1")
-
+                mod_dataInput_ui("dataInput_ui_1")
                 # -------------------------------
         )
+        
+        
+        # tabItem(tabName = "spatialTab",
+        #         # -------------------------------
+        # 
+        #         mod_spatial_ui("spatial_ui_1")
+        # 
+        #         # -------------------------------
+        # ),
+        # 
+        # 
+        # 
+        # tabItem(tabName = "taxonomicTab",
+        #         # -------------------------------
+        # 
+        #         mod_taxonomic_ui("taxonomic_ui_1")
+        # 
+        #         # -------------------------------
+        # ),
+        # 
+        # 
+        # tabItem(tabName = "temporalTab",
+        #         # -------------------------------
+        # 
+        #         mod_temporal_ui("temporal_ui_1")
+        # 
+        #         # -------------------------------
+        # )
 
       )  
     )#Dashboard Body ends here
@@ -101,18 +111,18 @@ app_ui <- function() {
 }
 
 #' @import shiny
-# golem_add_external_resources <- function(){
-#   
-#   addResourcePath(
-#     'www', system.file('app/www', package = 'bdvisShiny')
-#   )
-#  
-#   tags$head(
-#     golem::activate_js(),
-#     golem::favicon()
-#     # Add here all the external resources
-#     # If you have a custom.css in the inst/app/www
-#     # Or for example, you can add shinyalert::useShinyalert() here
-#     #tags$link(rel="stylesheet", type="text/css", href="www/custom.css")
-#   )
-# }
+golem_add_external_resources <- function(){
+
+  addResourcePath(
+    'www', system.file('app/www', package = 'bdvisShiny')
+  )
+
+  tags$head(
+    golem::activate_js(),
+    golem::favicon(),
+    # Add here all the external resources
+    # If you have a custom.css in the inst/app/www
+    # Or for example, you can add shinyalert::useShinyalert() here
+    tags$link(rel="stylesheet", type="text/css", href="www/custom.css")
+  )
+}
