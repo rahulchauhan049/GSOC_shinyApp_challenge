@@ -7,34 +7,14 @@
 
 ## 2.1 Add modules
 ## 
-golem::add_module( name = "dataInput" )
-golem::add_module( name = "input" ) # Name of the module
-golem::add_module( name = "spatial" )
-golem::add_module( name = "temporal" )
-golem::add_module( name = "taxonomic" )
+golem::add_module( name = "dataInput" ) # Name of the module
+golem::add_module( name = "my_other_module" ) # Name of the module
 
 ## 2.2 Add dependencies
 
-usethis::use_package( "data.table" ) # To call each time you need a new package
-usethis::use_package( "shinydashboard" )
-usethis::use_package( "finch" )
-usethis::use_package( "DT" )
-usethis::use_package( "bdchecks" )
-usethis::use_package( "leaflet" )
-usethis::use_package( "shinyjs" )
-usethis::use_package( "plotly" )
-usethis::use_package( "dplyr" )
-usethis::use_package( "bdvis" )
-usethis::use_package( "nycflights13" )
-usethis::use_package( "ggstat" )
-usethis::use_package( "purrr" )
-usethis::use_package( "data.tree" )
-usethis::use_package( "circlepackeR" )
-usethis::use_package( "collapsibleTree" )
-usethis::use_package( "networkD3" )
-usethis::use_package( "bdchecks" )
-
-
+usethis::use_package( "thinkr" ) # To call each time you need a new package
+usethis::use_package("shinydashboard")
+usethis::use_package("leaflet")
 ## 2.3 Add tests
 
 usethis::use_test( "app" )

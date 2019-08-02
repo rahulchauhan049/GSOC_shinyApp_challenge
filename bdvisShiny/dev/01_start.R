@@ -10,11 +10,11 @@
 
 golem::fill_desc(
   pkg_name = "bdvisShiny", # The Name of the package containing the App 
-  pkg_title = "bdvisShiny", # The Title of the package containing the App 
-  pkg_description = "Shiny package to use bdvis visulaization.", # The Description of the package containing the App 
-  author_first_name = "Rahul", # Your First Name
-  author_last_name = "Chauhan",  # Your Last Name
-  author_email = "rahul.chauhan049@gmail.com",      # Your Email
+  pkg_title = "PKG_TITLE", # The Title of the package containing the App 
+  pkg_description = "PKG_DESC.", # The Description of the package containing the App 
+  author_first_name = "AUTHOR_FIRST", # Your First Name
+  author_last_name = "AUTHOR_LAST",  # Your Last Name
+  author_email = "AUTHOR@MAIL.COM",      # Your Email
   repo_url = NULL # The (optional) URL of the GitHub Repo
 )     
 
@@ -37,7 +37,7 @@ usethis::use_git()
 ## 1.3 - Add a data-raw folder
 ## 
 ## If you have data in your package
-usethis::use_data_raw( name = "my_dataset", open = FALSE ) # Change "my_dataset"
+usethis::use_data_raw( name = "dataset", open = FALSE ) # Change "my_dataset"
 
 ## 1.4 - Init Tests
 ## 

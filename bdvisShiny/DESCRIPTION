@@ -1,37 +1,14 @@
 Package: bdvisShiny
-Title: bdvisShiny
+Title: An Amazing Shiny App
 Version: 0.0.0.9000
-Authors@R: person('Rahul', 'Chauhan', email = 'rahul.chauhan049@gmail.com', role = c('cre', 'aut'))
-Description: Shiny package to use bdvis visulaization.
-License: MIT + file LICENSE
+Authors@R: person("firstname", "lastname", email = "your@email.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 Imports: 
     shiny,
     golem,
-    processx,
-    attempt,
-    DT,
-    glue,
-    htmltools,
-    thinkr,
-    data.table,
     shinydashboard,
-    finch,
-    bdchecks,
-    leaflet,
-    shinyjs,
-    plotly,
-    dplyr,
-    bdvis,
-    nycflights13,
-    ggstat,
-    purrr,
-    data.tree,
-    circlepackeR,
-    collapsibleTree,
-    networkD3,
-    pkgload
+    leaflet
 RoxygenNote: 6.1.1
-Suggests: 
-    testthat (>= 2.1.0)
