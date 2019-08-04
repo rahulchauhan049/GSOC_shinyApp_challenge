@@ -5,13 +5,26 @@ inputDataset <- data.frame()
 
 app_server <- function(input, output,session) {
   
-  callModule(mod_dataInput_server, "dataInput_ui_1", session)
   
-  # ##################Input tabs#################################
-  # 
-  # inputDataset <- callModule(mod_input_server, "input_ui_1")
-  # 
-  # ################End of Input Tab#############################
+  ##################Input tabs#################################
+
+  inputDataset <- callModule(mod_dataInput_server, "dataInput_ui_1", session)
+
+
+  ##############################################################
+  
+  
+  ##################DataSummary tabs############################
+  
+  callModule(mod_dataSummary_server, "dataSummary_ui_1", inputDataset)
+  
+  ##############################################################
+  
+  
+  
+  
+  
+  
   #   
   #   
   #   

@@ -1,6 +1,9 @@
 #' @import shiny
 #' @import shinydashboard
 #' @import leaflet
+#' @import plyr
+#' @import dashboardthemes
+#' @import ggpubr
 
 app_ui <- function() {
   
@@ -23,6 +26,9 @@ app_ui <- function() {
                 
                 #----------------------Body Start-------------------------------------
                 dashboardBody(
+                  shinyDashboardThemes(
+                    theme = "grey_dark"
+                  ),
                   golem_add_external_resources(),
                   # Boxes need to be put in a row (or column)
                   tabItems(
@@ -37,7 +43,7 @@ app_ui <- function() {
                     
                     tabItem(tabName = "dataSummary",
                             # -------------------------------
-                            "sfdsd"
+                            mod_dataSummary_ui("dataSummary_ui_1")
                             # -------------------------------
                     )
                     #, 
