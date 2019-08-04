@@ -1,6 +1,7 @@
 #' @import shiny
 #' @import shinydashboard
 #' @import leaflet
+
 app_ui <- function() {
   
   dashboardPage(skin="green",
@@ -8,7 +9,7 @@ app_ui <- function() {
                 
                 #----------------------SideBar Start-------------------------------------
                 dashboardSidebar(
-                  sidebarMenu(
+                  sidebarMenu(id="sideBar",
                     menuItem("Data Input", tabName = "dataInputTab", icon = icon("database")),
                     menuItem("Data Summary", tabName = "dataSummary", icon = icon("database")),
                     menuItem("Spatial Visualization", tabName = "spatialTab", icon = icon("map-marked")),
@@ -30,15 +31,15 @@ app_ui <- function() {
                             # -------------------------------
                             mod_dataInput_ui("dataInput_ui_1")
                             # -------------------------------
+                    ),
+                    
+                    
+                    
+                    tabItem(tabName = "dataSummary",
+                            # -------------------------------
+                            "sfdsd"
+                            # -------------------------------
                     )
-                    
-                    
-                    
-                    # tabItem(tabName = "dataSummary",
-                    #         # -------------------------------
-                    #         mod_input_ui("input_ui_1")
-                    #         # -------------------------------
-                    # )
                     #, 
                     # 
 

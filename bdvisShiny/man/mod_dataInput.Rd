@@ -7,7 +7,7 @@
 \usage{
 mod_dataInput_ui(id)
 
-mod_dataInput_server(input, output, session)
+mod_dataInput_server(input, output, session, parentSession)
 }
 \arguments{
 \item{id}{shiny id}

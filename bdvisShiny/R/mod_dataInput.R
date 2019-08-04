@@ -13,6 +13,7 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
+
 mod_dataInput_ui <- function(id){
   ns <- NS(id)
   fluidRow(div(
@@ -113,12 +114,13 @@ mod_dataInput_ui <- function(id){
               a("bdDwC", href = "https://github.com/bd-R/bdDwC"),
               " package."
             )
-            
+                     
             
             # ------------- End of Local Disk Module -------------------
             
             
-          )
+          ),
+          actionButton(ns("nextTab"), "Next:: Data Summary")
           
           
         ),
@@ -177,7 +179,7 @@ mod_dataInput_ui <- function(id){
 #' @export
 #' @keywords internal
 
-mod_dataInput_server <- function(input, output, session){
+mod_dataInput_server <- function(input, output, session, parentSession){
   ns <- session$ns
   returnData <- mammals
   map <- leafletProxy(ns("mymap"))
@@ -191,6 +193,11 @@ mod_dataInput_server <- function(input, output, session){
       returnData <<- hyena
     }
     dataLoadedTask(returnData)
+  })
+  
+  observeEvent(input$nextTab ,{
+    updateTabItems(parentSession, "sideBar", "dataSummary")
+    
   })
   
   
@@ -290,6 +297,15 @@ mod_dataInput_server <- function(input, output, session){
       setView(0, 0, zoom = 2)
   })
   
+  
+  
+  
+  
+  output$inputDataTable <- DT::renderDataTable(DT::datatable({
+    returnData
+  }, options = list(scrollX = TRUE)))
+  
+  
   dataLoadedTask <- function(data) {
     if (length(data) == 0) {
       showNotification("Empty data returned! Try different setting.",
@@ -343,7 +359,7 @@ mod_dataInput_server <- function(input, output, session){
           addCircles(~ decimalLongitude, ~ decimalLatitude, color = input$mapColor))
     
     output$inputDataTable <- DT::renderDataTable(DT::datatable({
-      summarizeDataframe(returnData)
+      returnData
     }, options = list(scrollX = TRUE)))
     
     

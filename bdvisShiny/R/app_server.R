@@ -5,7 +5,7 @@ inputDataset <- data.frame()
 
 app_server <- function(input, output,session) {
   
-  callModule(mod_dataInput_server, "dataInput_ui_1")
+  callModule(mod_dataInput_server, "dataInput_ui_1", session)
   
   # ##################Input tabs#################################
   # 
