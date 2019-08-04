@@ -18,29 +18,24 @@ library(ggplot2)
 mod_dataSummary_ui <- function(id){
   ns <- NS(id)
   fluidPage(
-  fluidRow(column(12,plotOutput(ns("gauge"), height = "200px"))),
+  fluidRow(column(12,plotOutput(ns("gauge"), height = "150px"))),br(),
   fluidRow(
-    tagList(
-      column(12,
+    column(3,
              div(
                class = "center",
                fluidRow(
-                 infoBox("# of Records", textOutput(ns("inputDataRows")), icon = icon("list-ol")),
-                 infoBox(
-                   "# of Fields",
-                   textOutput(ns("inputDataColumns")),
-                   icon = icon("th-list"),
-                   color = "purple"
-                 ),
-                 infoBox(
-                   "# of Scientific Names",
-                   textOutput(ns("inputDataSpecies")),
-                   icon = icon("paw"),
-                   color = "yellow"
-                 )
-               )))
-      
+                valueBoxOutput((ns("boxA")), width = "100%")),
+               fluidRow(  
+                 valueBoxOutput((ns("boxB")), width = "100%")),
+               fluidRow(
+                   valueBoxOutput((ns("boxC")), width = "100%"))
+               )
     )
+    ,column(9,tabsetPanel(
+      tabPanel("Spatial"),
+      tabPanel("Temporal"),
+      tabPanel("Taxonomic")
+    ))
   )#End of fluidRow
   )
 }
@@ -61,6 +56,28 @@ mod_dataSummary_server <- function(input, output, session, dataset){
   output$gauge <- renderPlot({
     gauge(dataset())
   },bg = "grey")
+  
+  output$boxA <- renderValueBox({valueBox(
+    value = 100,
+    subtitle = "Value",
+    icon = icon("area-chart"),
+    color = "aqua",
+    width = 2
+  )})
+  output$boxB <- renderValueBox({valueBox(
+    value = 100,
+    subtitle = "Value",
+    icon = icon("area-chart"),
+    color = "aqua",
+    width = 2
+  )})
+  output$boxC <- renderValueBox({valueBox(
+    value = 100,
+    subtitle = "Value",
+    icon = icon("area-chart"),
+    color = "aqua",
+    width = 2
+  )})
   
   #Function#########################
   gauge <- function(df){
