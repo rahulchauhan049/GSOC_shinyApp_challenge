@@ -4,6 +4,7 @@
 #' @import plyr
 #' @import dashboardthemes
 #' @import ggpubr
+#' @import plotly
 
 app_ui <- function() {
   

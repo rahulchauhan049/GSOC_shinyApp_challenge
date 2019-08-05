@@ -13,14 +13,25 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
+#' @import flexdashboard
+#' @import bdvis
 
 library(ggplot2)
+library(tidyr)
+library(dplyr)
 mod_dataSummary_ui <- function(id){
   ns <- NS(id)
   fluidPage(
-  fluidRow(column(12,plotOutput(ns("gauge"), height = "150px"))),br(),
-  fluidRow(
-    column(3,
+    fluidRow(style='padding-bottom:0px;',
+      column(3, flexdashboard::gaugeOutput(ns("Gauge1"))),
+      column(3, flexdashboard::gaugeOutput(ns("Gauge2"))),
+      column(3, flexdashboard::gaugeOutput(ns("Gauge3"))),
+      column(3, flexdashboard::gaugeOutput(ns("Gauge4")))
+             
+      ),
+  # fluidRow(column(12,plotOutput(ns("gauge"), height = "150px"))),br(),
+  fluidRow(style='padding-top:-50px;',
+    column(3,style='padding-top:-50px;',
              div(
                class = "center",
                fluidRow(
@@ -31,9 +42,19 @@ mod_dataSummary_ui <- function(id){
                    valueBoxOutput((ns("boxC")), width = "100%"))
                )
     )
-    ,column(9,tabsetPanel(
-      tabPanel("Spatial"),
-      tabPanel("Temporal"),
+    ,column(9,style='padding:20px;',tabsetPanel(
+      tabPanel("Spatial",fluidRow(column(3,style='padding:20px;',fluidRow(
+                                valueBoxOutput(ns("totalCountry"), width = "40%")),
+                                fluidRow(
+                                valueBoxOutput(ns("naCountry"), width = "40%"))),
+               column(9,plotlyOutput(ns("countryBar")))
+               )),
+      tabPanel("Temporal", selectInput(
+        ns("barselect"),
+        "Select Column to be displayed",
+        c("basisOfRecord", "kingdom", "phylum", "order", "family", "genus", "species"),
+        selected = "basisOfRecord"
+      ),plotlyOutput(ns("bar"), height = "50%")),
       tabPanel("Taxonomic")
     ))
   )#End of fluidRow
@@ -49,80 +70,148 @@ mod_dataSummary_ui <- function(id){
 mod_dataSummary_server <- function(input, output, session, dataset){
   
   ns <- session$ns
-  output$inputDataRows <- renderText(nrow(dataset()))
-  output$inputDataColumns <- renderText(length(dataset()))
-  output$inputDataSpecies <-
-    renderText(nrow(unique(dataset()["scientificName"])))
-  output$gauge <- renderPlot({
-    gauge(dataset())
-  },bg = "grey")
+  
+  output$Gauge1 <- flexdashboard::renderGauge({
+    df <- dataset()
+      latitude <- round(((nrow(df["decimalLatitude"])-sum(is.na(df["decimalLatitude"])))/nrow(df["decimalLatitude"])), 2)*100
+      longitude <- round(((nrow(df["decimalLongitude"])-sum(is.na(df["decimalLongitude"])))/nrow(df["decimalLongitude"])), 2)*100
+      if(latitude>longitude){
+        geo <- longitude
+      } else {
+        geo <- latitude
+      }
+    gauge(geo, min = 0, max = 100, symbol = "%", label = "% of Plotable\nGeo coordinates", gaugeSectors(
+      success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+    )) 
+  })   
+  
+  output$Gauge2 <- flexdashboard::renderGauge({
+    df <- dataset()
+    dateIdentified <- round(((nrow(df["dateIdentified"])-sum(is.na(df["dateIdentified"])))/nrow(df["dateIdentified"])), 2)*100
+    gauge(dateIdentified, min = 0, max = 100, symbol = "%", label = "% of rows\nwith dateIdentified records", gaugeSectors(
+      success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+    )) 
+  })  
+  
+  output$Gauge3 <- flexdashboard::renderGauge({
+    df <- dataset()
+    occurrenceRemarks <- round(((nrow(df["occurrenceRemarks"])-sum(is.na(df["occurrenceRemarks"])))/nrow(df["occurrenceRemarks"])), 2)*100
+    gauge(occurrenceRemarks, min = 0, max = 100, symbol = "%", label = "% of rows\nwith dateIdentified records", gaugeSectors(
+      success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+    )) 
+  })
+
+output$Gauge4 <- flexdashboard::renderGauge({
+  df <- dataset()
+  eventTime <- round(((nrow(df["eventTime"])-sum(is.na(df["eventTime"])))/nrow(df["eventTime"])), 2)*100
+  gauge(eventTime, min = 0, max = 100, symbol = "%", label = "% of rows\nwith eventTime records", gaugeSectors(
+    success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+  )) 
+})  
+  
+
   
   output$boxA <- renderValueBox({valueBox(
-    value = 100,
-    subtitle = "Value",
-    icon = icon("area-chart"),
+    value = (nrow(dataset()["decimalLatitude"])),
+    subtitle = "# of Records\n(# of Geo-coordinates)",
+    icon = icon("compass"),
     color = "aqua",
-    width = 2
+    width = 1
   )})
   output$boxB <- renderValueBox({valueBox(
-    value = 100,
-    subtitle = "Value",
-    icon = icon("area-chart"),
+    value = nrow(unique(dataset()["scientificName"])),
+    subtitle = "# of Taxa",
+    icon = icon("file-signature"),
     color = "aqua",
-    width = 2
+    width = 1
   )})
   output$boxC <- renderValueBox({valueBox(
-    value = 100,
-    subtitle = "Value",
+    value = length(dataset()),
+    subtitle = "# of Attributes",
     icon = icon("area-chart"),
     color = "aqua",
-    width = 2
+    width = 1
   )})
   
-  #Function#########################
-  gauge <- function(df){
-    latitude <- round(((nrow(df["decimalLatitude"])-sum(is.na(df["decimalLatitude"])))/nrow(df["decimalLatitude"])), 2)
-    longitude <- round(((nrow(df["decimalLongitude"])-sum(is.na(df["decimalLongitude"])))/nrow(df["decimalLongitude"])), 2)
-    if(latitude>longitude){
-      geo <- longitude
+  formattedData <- reactive({
+    dataset <- dataset()
+    dataForBar <- format_bdvis(dataset, source = 'rgbif')
+    
+    
+    names(dataForBar) = gsub("\\.", "_", names(dataForBar))
+    if ("Date_collected" %in% colnames(dataForBar)) {
+      if (length(which(!is.na(dataForBar$Date_collected))) == 0) {
+        stop("Date_collected has no data")
+      }
+      dayofYear = as.numeric(strftime(as.Date(dataForBar$Date_collected, na.rm =
+                                                T), format = "%d"))
+      weekofYear = as.numeric(strftime(as.Date(dataForBar$Date_collected, na.rm =
+                                                 T), format = "%U"))
+      monthofYear = as.numeric(strftime(as.Date(dataForBar$Date_collected, na.rm =
+                                                  T), format = "%m"))
+      Year_ = as.numeric(strftime(as.Date(dataForBar$Date_collected, na.rm =
+                                            T), format = "%Y"))
+      dataForBar <-
+        cbind(dataForBar[c("basisOfRecord", "kingdom", "phylum", "order", "family", "genus", "species")], dayofYear, weekofYear, monthofYear, Year_)
+      
     } else {
-      geo <- latitude
+      stop("Date_collected not found in data. Please use format_bdvis() to fix the problem")
     }
-    dateIdentified <- round(((nrow(df["dateIdentified"])-sum(is.na(df["dateIdentified"])))/nrow(df["dateIdentified"])), 2)
-    occurrenceRemarks <- round(((nrow(df["occurrenceRemarks"])-sum(is.na(df["occurrenceRemarks"])))/nrow(df["occurrenceRemarks"])), 2)
-    eventTime <- round(((nrow(df["eventTime"])-sum(is.na(df["eventTime"])))/nrow(df["eventTime"])), 2)
+    return(dataForBar)
+  })
+  
+
+  output$bar <- renderPlotly({
+    dataForBar <- arrange(formattedData(), as.numeric(formattedData()$Year_))
+    dataForBar <- dataForBar[c(input$barselect, "Year_")]
     
+    dataForBar <-
+      data.frame(table(dataForBar)) %>% dplyr::rename(group = input$barselect,
+                                               variable = Year_,
+                                               value = Freq)
+    plot_ly(
+      dataForBar,
+      source = "barselected",
+      x = ~ value,
+      y = ~ variable,
+      color = ~ group
+    )%>%  layout(showlegend = FALSE, height = 250) %>%
+      add_bars()
+
     
+  })  
+  output$totalCountry <- renderValueBox({valueBox(
+    value = nrow(unique(dataset()["countryCode"])),
+    subtitle = "# of Countries",
+    icon = icon("area-chart"),
+    color = "aqua",
+    width = 1
+  )})
+  
+  output$naCountry <- renderValueBox({valueBox(
+    value = rowSums(is.na(dataset()["countryCode"])),
+    subtitle = "# Missing country",
+    icon = icon("area-chart"),
+    color = "aqua",
+    width = 1
+  )})
+  
+  output$countryBar <- renderPlotly({
+    country <- data.frame(table(na.omit(dataset()["countryCode"])))%>%dplyr::rename(
+      CountryName = Var1,
+      NumberOfRecords = Freq)
+    plot_ly(data = country,
+            x = ~CountryName,
+            y = ~NumberOfRecords,
+            name = "Countries",
+            type = "bar"
+    ) %>% layout(showlegend = FALSE, height = 350)
     
-    df <- data.frame(variable = c("geo", "dateIdentified", "occurrenceRemarks", "eventTime"), percentage = c(geo, dateIdentified, occurrenceRemarks, eventTime))
-    df <- df %>% mutate(group=ifelse(percentage <0.6, "red",
-                                     ifelse(percentage>=0.6 & percentage<0.8, "orange","green")),
-                        label=paste0(percentage*100, "%"),
-                        title=dplyr::recode(variable, `geo`="% of Plotable\nGeo coordinates",
-                                            `dateIdentified`="% of rows\nwith dateIdentified records",
-                                            `occurrenceRemarks`="% of rows\n with occurence Remarks",
-                                            `eventTime`="% of rows\nwith eventTime records"
-                        ))
-    ggplot(df, aes(fill = group, ymax = percentage, ymin = 0, xmax = 2, xmin = 1)) +
-      geom_rect(aes(ymax=1, ymin=0, xmax=2, xmin=1), fill ="#ece8bd") +
-      geom_rect() + 
-      coord_polar(theta = "y",start=-pi/2) + xlim(c(0, 2)) + ylim(c(0,2)) +
-      geom_text(aes(x = 0, y = 0, label = label, colour=group), size=6.5, family="Poppins SemiBold") +
-      geom_text(aes(x=1.5, y=1.5, label=title), family="Poppins Light", size=4.2) + 
-      facet_wrap(~title, ncol = 5) +
-      theme_void() +
-      scale_fill_manual(values = c("red"="#C9146C", "orange"="#DA9112", "green"="#129188")) +
-      scale_colour_manual(values = c("red"="#C9146C", "orange"="#DA9112", "green"="#129188")) +
-      theme(strip.background = element_blank(),
-            strip.text.x = element_blank(),panel.background = element_blank(),
-            plot.background = element_rect(fill = "grey")) +
-      guides(fill=FALSE) +
-      guides(colour=FALSE)
-    
+  })
+  
+  
   }
-  }
-    
-## To be copied in the UI
+  ## To be copied in the UI
 # mod_dataSummary_ui("dataSummary_ui_1")
     
 ## To be copied in the server
