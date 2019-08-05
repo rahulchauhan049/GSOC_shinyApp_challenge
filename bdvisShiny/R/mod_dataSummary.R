@@ -19,6 +19,9 @@
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(tidyverse)
+library(treemap)
+library(sunburstR)
 mod_dataSummary_ui <- function(id){
   ns <- NS(id)
   fluidPage(
@@ -55,7 +58,8 @@ mod_dataSummary_ui <- function(id){
         c("basisOfRecord", "kingdom", "phylum", "order", "family", "genus", "species"),
         selected = "basisOfRecord"
       ),plotlyOutput(ns("bar"), height = "50%")),
-      tabPanel("Taxonomic")
+      tabPanel("Taxonomic",
+               sunburstOutput(ns("sunbrust"), height = "350px"))
     ))
   )#End of fluidRow
   )
@@ -96,7 +100,7 @@ mod_dataSummary_server <- function(input, output, session, dataset){
   output$Gauge3 <- flexdashboard::renderGauge({
     df <- dataset()
     occurrenceRemarks <- round(((nrow(df["occurrenceRemarks"])-sum(is.na(df["occurrenceRemarks"])))/nrow(df["occurrenceRemarks"])), 2)*100
-    gauge(occurrenceRemarks, min = 0, max = 100, symbol = "%", label = "% of rows\nwith dateIdentified records", gaugeSectors(
+    gauge(occurrenceRemarks, min = 0, max = 100, symbol = "%", label = "% of rows\nwith occurence remark", gaugeSectors(
       success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
     )) 
   })
@@ -207,6 +211,33 @@ output$Gauge4 <- flexdashboard::renderGauge({
             type = "bar"
     ) %>% layout(showlegend = FALSE, height = 350)
     
+  })
+  
+  output$sunbrust <- renderSunburst({
+    data <- dataset()
+    if (!nrow(data[-which(data[, "genus"] == ""),]) == 0) {
+      data <- data[-which(data[, "genus"] == ""),]
+    }
+    if (!nrow(data[-which(data[, "family"] == ""),]) == 0) {
+      data <- data[-which(data[, "family"] == ""),]
+    }
+    if (!nrow(data[-which(data[, "order"] == ""),]) == 0) {
+      data <- data[-which(data[, "order"] == ""),]
+    }
+    if (!nrow(data[-which(data[, "phylum"] == ""),]) == 0) {
+      data <- data[-which(data[, "phylum"] == ""),]
+    }
+    data <- arrange(data, family)
+    temp <- as.data.frame(table(data["genus"]))
+    data <- unique(data)
+    temp <- merge(data, temp , by.x = "genus", by.y = "Var1")
+    temp <- temp[c("phylum", "order", "family", "genus", "Freq")]
+    temp <- temp %>%
+      mutate(path = paste(phylum, order, family, genus, sep="-")) %>%
+      dplyr::select(path, Freq)
+    
+    # Plot
+    sunburst(temp, legend=FALSE)
   })
   
   
