@@ -16,7 +16,9 @@
 mod_spatial_ui <- function(id) {
   ns <- NS(id)
   
-  fluidPage(fluidRow(column(
+  fluidPage(fluidRow(column(4, plotlyOutput(ns("countryBar"), height = "360px")),
+                     column(4, verbatimTextOutput(ns("temp")))),
+    fluidRow(column(
     12,
     leafletOutput(ns("mymap"), height = "240px"),
     absolutePanel(
@@ -49,8 +51,7 @@ mod_spatial_ui <- function(id) {
         )
       )
     )
-  )),
-  fluidRow(column(3))
+  ))
   )
 }
 
@@ -63,14 +64,51 @@ mod_spatial_ui <- function(id) {
 mod_spatial_server <- function(input, output, session, data) {
   ns <- session$ns
   
-  output$mymap <- renderLeaflet({
-    leaflet(data = data()) %>%
-      addProviderTiles(input$mapTexture) %>%
-      addCircles( ~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
+  output$countryBar <- renderPlotly({
+    country <- data.frame(table(na.omit(data()["countryCode"])))%>%dplyr::rename(
+      CountryName = Var1,
+      NumberOfRecords = Freq)
+    plot_ly(data = country, source = "barCountrt",
+            x = ~CountryName,
+            y = ~NumberOfRecords,
+            name = "Countries",
+            type = "bar"
+    ) %>% layout(showlegend = FALSE, height = 320)
   })
   
+  observe({
+    click <- event_data("plotly_click", source = "barCountrt")
+    if(is.null(click)){
+      output$mymap <- renderLeaflet({
+        leaflet(data = data()) %>%
+          addProviderTiles(input$mapTexture) %>%
+          addCircles( ~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
+      })
+      output$temp <- renderText("as")
+    } else {
+      new <- data() %>% filter(countryCode %in% click$x)
+      leafletProxy("mymap", data = new) %>% clearShapes() %>%
+        addCircles( ~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
+    }
+  })
   
+  observe({
+    click <- event_data("plotly_selected", source = "barCountrt")
+    if(is.null(click)){
+      output$mymap <- renderLeaflet({
+        leaflet(data = data()) %>%
+          addProviderTiles(input$mapTexture) %>%
+          addCircles( ~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
+      })
+      output$temp <- renderText("as")
+    } else {
+      new <- data() %>% filter(countryCode %in% click$x)
+      leafletProxy("mymap", data = new) %>% clearShapes() %>%
+        addCircles( ~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
+    }
+  })
 }
+
 
 ## To be copied in the UI
 # mod_spatial_ui("spatial_ui_1")
