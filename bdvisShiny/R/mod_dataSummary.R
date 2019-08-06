@@ -15,13 +15,17 @@
 #' @importFrom shiny NS tagList 
 #' @import flexdashboard
 #' @import bdvis
+#' @import ggplot2
+#' @import tidyr
+#' @import treemap
+#' @import sunburstR
 
-library(ggplot2)
-library(tidyr)
-library(dplyr)
-library(tidyverse)
-library(treemap)
-library(sunburstR)
+# library(ggplot2)
+# library(tidyr)
+# library(dplyr)
+# library(tidyverse)
+# library(treemap)
+# library(sunburstR)
 mod_dataSummary_ui <- function(id){
   ns <- NS(id)
   fluidPage(
@@ -38,18 +42,18 @@ mod_dataSummary_ui <- function(id){
              div(
                class = "center",
                fluidRow(
-                valueBoxOutput((ns("boxA")), width = "100%")),
+                 shinydashboard::valueBoxOutput((ns("boxA")), width = "100%")),
                fluidRow(  
-                 valueBoxOutput((ns("boxB")), width = "100%")),
+                 shinydashboard::valueBoxOutput((ns("boxB")), width = "100%")),
                fluidRow(
-                   valueBoxOutput((ns("boxC")), width = "100%"))
+                 shinydashboard::valueBoxOutput((ns("boxC")), width = "100%"))
                )
     )
     ,column(9,style='padding:20px;',tabsetPanel(
       tabPanel("Spatial",fluidRow(column(3,style='padding:20px;',fluidRow(
-                                valueBoxOutput(ns("totalCountry"), width = "40%")),
+        shinydashboard::valueBoxOutput(ns("totalCountry"), width = "40%")),
                                 fluidRow(
-                                valueBoxOutput(ns("naCountry"), width = "40%"))),
+                                  shinydashboard::valueBoxOutput(ns("naCountry"), width = "40%"))),
                column(9,plotlyOutput(ns("countryBar")))
                )),
       tabPanel("Temporal", selectInput(
@@ -115,21 +119,21 @@ output$Gauge4 <- flexdashboard::renderGauge({
   
 
   
-  output$boxA <- renderValueBox({valueBox(
+  output$boxA <- shinydashboard::renderValueBox({shinydashboard::valueBox(
     value = (nrow(dataset()["decimalLatitude"])),
     subtitle = "# of Records\n(# of Geo-coordinates)",
     icon = icon("compass"),
     color = "aqua",
     width = 1
   )})
-  output$boxB <- renderValueBox({valueBox(
+  output$boxB <- shinydashboard::renderValueBox({shinydashboard::valueBox(
     value = nrow(unique(dataset()["scientificName"])),
     subtitle = "# of Taxa",
     icon = icon("file-signature"),
     color = "aqua",
     width = 1
   )})
-  output$boxC <- renderValueBox({valueBox(
+  output$boxC <- shinydashboard::renderValueBox({shinydashboard::valueBox(
     value = length(dataset()),
     subtitle = "# of Attributes",
     icon = icon("area-chart"),
@@ -184,7 +188,7 @@ output$Gauge4 <- flexdashboard::renderGauge({
 
     
   })  
-  output$totalCountry <- renderValueBox({valueBox(
+  output$totalCountry <- shinydashboard::renderValueBox({shinydashboard::valueBox(
     value = nrow(unique(dataset()["countryCode"])),
     subtitle = "# of Countries",
     icon = icon("area-chart"),
@@ -192,7 +196,7 @@ output$Gauge4 <- flexdashboard::renderGauge({
     width = 1
   )})
   
-  output$naCountry <- renderValueBox({valueBox(
+  output$naCountry <- shinydashboard::renderValueBox({shinydashboard::valueBox(
     value = rowSums(is.na(dataset()["countryCode"])),
     subtitle = "# Missing country",
     icon = icon("area-chart"),

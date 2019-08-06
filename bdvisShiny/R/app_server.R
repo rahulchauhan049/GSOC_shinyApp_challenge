@@ -20,21 +20,17 @@ app_server <- function(input, output,session) {
   
   ##############################################################
   
-  
-  
-  
-  
-  
-  #   
-  #   
-  #   
-  # ##################Spatial tabs###############################
-  #   
-  #   callModule(mod_spatial_server, "spatial_ui_1", inputDataset())
-  #   
-  # ################End of Input Tab#############################
-  #   
-  #   
+
+
+
+
+  ##################Spatial tabs###############################
+
+    callModule(mod_spatial_server, "spatial_ui_1", inputDataset)
+
+  ################End of Input Tab#############################
+
+
   #   
   # ##################Spatial tabs###############################
   #   

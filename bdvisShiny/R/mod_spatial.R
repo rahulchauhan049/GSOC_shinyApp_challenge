@@ -1,0 +1,79 @@
+# Module UI
+
+#' @title   mod_spatial_ui and mod_spatial_server
+#' @description  A shiny Module.
+#'
+#' @param id shiny id
+#' @param input internal
+#' @param output internal
+#' @param session internal
+#'
+#' @rdname mod_spatial
+#'
+#' @keywords internal
+#' @export
+#' @importFrom shiny NS tagList
+mod_spatial_ui <- function(id) {
+  ns <- NS(id)
+  
+  fluidPage(fluidRow(column(
+    12,
+    leafletOutput(ns("mymap"), height = "240px"),
+    absolutePanel(
+      top = 60,
+      right = 20,
+      selectInput(
+        ns("mapTexture"),
+        "Map Texture",
+        choices = list(
+          "OpenStreetMap.Mapnik" = "OpenStreetMap.Mapnik",
+          "OpenStreetMap.BlackAndWhite" = "OpenStreetMap.BlackAndWhite",
+          "Stamen.Toner" = "Stamen.Toner",
+          "CartoDB.Positron" = "CartoDB.Positron",
+          "Esri.NatGeoWorldMap" = "Esri.NatGeoWorldMap",
+          "Stamen.Watercolor" = "Stamen.Watercolor",
+          "Stamen.Terrain" = "Stamen.Terrain",
+          "Esri.WorldImagery" = "Esri.WorldImagery",
+          "Esri.WorldTerrain" = "Esri.WorldTerrain"
+        ),
+        selected = "Stamen.Toner"
+      ),
+      selectInput(
+        ns("mapColor"),
+        "Points Color",
+        choices = list(
+          "Red" = 'red',
+          "Green" = "green",
+          "Blue" = "blue",
+          "Black" = "black"
+        )
+      )
+    )
+  )),
+  fluidRow(column(3))
+  )
+}
+
+# Module Server
+
+#' @rdname mod_spatial
+#' @export
+#' @keywords internal
+
+mod_spatial_server <- function(input, output, session, data) {
+  ns <- session$ns
+  
+  output$mymap <- renderLeaflet({
+    leaflet(data = data()) %>%
+      addProviderTiles(input$mapTexture) %>%
+      addCircles( ~ decimalLongitude, ~ decimalLatitude, color = input$mapColor)
+  })
+  
+  
+}
+
+## To be copied in the UI
+# mod_spatial_ui("spatial_ui_1")
+
+## To be copied in the server
+# callModule(mod_spatial_server, "spatial_ui_1")

@@ -1,7 +1,7 @@
 #' @import shiny
 #' @import shinydashboard
 #' @import leaflet
-#' @import plyr
+#' @import dplyr
 #' @import dashboardthemes
 #' @import ggpubr
 #' @import plotly
@@ -46,19 +46,17 @@ app_ui <- function() {
                             # -------------------------------
                             mod_dataSummary_ui("dataSummary_ui_1")
                             # -------------------------------
-                    )
-                    #, 
-                    # 
+                    ), 
 
-                    # 
-                    # 
-                    # tabItem(tabName = "spatialTab",
-                    #         # -------------------------------
-                    # 
-                    #         mod_spatial_ui("spatial_ui_1")
-                    # 
-                    #         # -------------------------------
-                    # ),
+
+
+                    tabItem(tabName = "spatialTab",
+                            # -------------------------------
+
+                            mod_spatial_ui("spatial_ui_1")
+
+                            # -------------------------------
+                    )
                     # 
                     # 
                     # 
