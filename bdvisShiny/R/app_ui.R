@@ -56,26 +56,26 @@ app_ui <- function() {
                             mod_spatial_ui("spatial_ui_1")
 
                             # -------------------------------
+                    ),
+
+
+
+                    tabItem(tabName = "taxonomicTab",
+                            # -------------------------------
+
+                            mod_taxonomic_ui("taxonomic_ui_1")
+
+                            # -------------------------------
+                    ),
+
+
+                    tabItem(tabName = "temporalTab",
+                            # -------------------------------
+
+                            mod_temporal_ui("temporal_ui_1")
+
+                            # -------------------------------
                     )
-                    # 
-                    # 
-                    # 
-                    # tabItem(tabName = "taxonomicTab",
-                    #         # -------------------------------
-                    # 
-                    #         mod_taxonomic_ui("taxonomic_ui_1")
-                    # 
-                    #         # -------------------------------
-                    # ),
-                    # 
-                    # 
-                    # tabItem(tabName = "temporalTab",
-                    #         # -------------------------------
-                    # 
-                    #         mod_temporal_ui("temporal_ui_1")
-                    # 
-                    #         # -------------------------------
-                    # )
                     
                   )  
                 )#Dashboard Body ends here

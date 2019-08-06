@@ -10,6 +10,12 @@
 golem::add_module( name = "dataInput" ) # Name of the module
 golem::add_module( name = "my_other_module" ) # Name of the module
 golem::add_module(name = "dataSummary")
+golem::add_module(name = "spatail")
+golem::add_module(name = "taxonomic")
+golem::add_module(name = "temporal")
+
+
+
 
 ## 2.2 Add dependencies
 
