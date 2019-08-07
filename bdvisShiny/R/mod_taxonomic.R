@@ -33,8 +33,7 @@ mod_taxonomic_ui <- function(id){
              circlepackeROutput(ns("circleplot"), height = "300px"))
     ),
     fluidRow(
-      column(6,sunburstOutput(ns("sunbrust"), height = "300px"))
-    )
+      column(6,sunburstOutput(ns("sunbrust"), height = "300px"))    )
   )
 }
     
@@ -156,7 +155,6 @@ mod_taxonomic_server <- function(input, output, session, dataTaxo){
     # Plot
     sunburst(temp, legend=FALSE)
   })
-  
   
   #Function
   formatData <- function(data) {

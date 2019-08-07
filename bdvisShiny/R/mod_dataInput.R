@@ -29,8 +29,8 @@ mod_dataInput_ui <- function(id){
             tabPanel("Existing Data",
                      selectizeInput(ns("dataSet"),
                                     "Select Sample Datasets",
-                                    choices = c( "Mammals", "Hyena"),
-                                    selected = "Mammals"
+                                    choices = c( "Mammals", "Hyena", "Puma Concolor"),
+                                    selected = "Puma Concolor"
                      ),div(class = "activeButton",
                      actionButton(ns("loadexisting"), "Load New Dataset", icon("upload")))
             ),
@@ -81,7 +81,8 @@ mod_dataInput_ui <- function(id){
               div(
                 id = ns("queryDatabaseDiv"),
                 class = "activeButton",
-                actionButton(ns("queryDatabase"), "Query Database", icon("download"))
+                actionButton(ns("queryDatabase"), "Query Database", icon("download")),
+                downloadButton(ns("downloadData"), "Download")
               ),
               br()
             ),
@@ -181,7 +182,7 @@ mod_dataInput_ui <- function(id){
 
 mod_dataInput_server <- function(input, output, session, parentSession){
   ns <- session$ns
-  returnData <- mammals
+  returnData <- pumaConcolor
   map <- leafletProxy(ns("mymap"))
   
   # ----------------
@@ -191,6 +192,8 @@ mod_dataInput_server <- function(input, output, session, parentSession){
       returnData <<- mammals
     } else if(input$dataSet=="Hyena"){
       returnData <<- hyena
+    } else if(input$data=="Puma Concolor"){
+      returnData <<- pumaConcolor
     }
     dataLoadedTask(returnData)
   })
@@ -248,6 +251,13 @@ mod_dataInput_server <- function(input, output, session, parentSession){
     
     
   })
+  
+  output$downloadData <- downloadHandler(
+    filename = "dataset.csv",
+    content = function(file) {
+      write.csv(returnData, file, row.names = FALSE)
+    }
+  )
   
   observeEvent(input$inputFile, {
     withProgress(message = paste("Reading", input$inputFile$name, "..."), {
