@@ -31,8 +31,8 @@ mod_dataInput_ui <- function(id){
                                     "Select Sample Datasets",
                                     choices = c( "Mammals", "Hyena"),
                                     selected = "Mammals"
-                     ),
-                     actionButton(ns("loadexisting"), "Load New Dataset")
+                     ),div(class = "activeButton",
+                     actionButton(ns("loadexisting"), "Load New Dataset", icon("upload")))
             ),
             tabPanel(
               "Download Data",
@@ -119,8 +119,8 @@ mod_dataInput_ui <- function(id){
             # ------------- End of Local Disk Module -------------------
             
             
-          ),
-          actionButton(ns("nextTab"), "Next:: Data Summary")
+          ),div(id="nextButton",
+          actionButton(ns("nextTab"), "Next:: Data Summary", icon("forward")))
           
           
         ),

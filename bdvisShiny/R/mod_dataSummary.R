@@ -13,12 +13,7 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
-#' @import flexdashboard
-#' @import bdvis
-#' @import ggplot2
-#' @import tidyr
-#' @import treemap
-#' @import sunburstR
+
 
 # library(ggplot2)
 # library(tidyr)

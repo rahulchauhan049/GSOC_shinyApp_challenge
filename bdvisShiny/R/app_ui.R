@@ -5,7 +5,14 @@
 #' @import dashboardthemes
 #' @import ggpubr
 #' @import plotly
-
+#' @import circlepackeR
+#' @import data.tree
+#' @import flexdashboard
+#' @import bdvis
+#' @import ggplot2
+#' @import tidyr
+#' @import treemap
+#' @import sunburstR
 app_ui <- function() {
   
   dashboardPage(skin="green",
