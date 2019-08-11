@@ -13,3 +13,12 @@
   border-color: #379a6d;
   padding: 6px 12px;
   font-size: 14px; }
+  
+.completedButton .btn{
+    background-color: green;
+    color: white
+}
+
+.readyButton .btn{
+    background-color: transparent;
+}

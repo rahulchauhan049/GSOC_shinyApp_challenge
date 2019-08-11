@@ -81,8 +81,7 @@ mod_dataInput_ui <- function(id){
               div(
                 id = ns("queryDatabaseDiv"),
                 class = "activeButton",
-                actionButton(ns("queryDatabase"), "Query Database", icon("download")),
-                downloadButton(ns("downloadData"), "Download")
+                actionButton(ns("queryDatabase"), "Query Database", icon("download"))
               ),
               br()
             ),
@@ -379,6 +378,7 @@ mod_dataInput_server <- function(input, output, session, parentSession){
     shinyjs::runjs(code = paste('$("#', ns("inputFileDiv"), '").removeClass("activeButton");', sep = ""))
     shinyjs::runjs(code = paste('$("#', "dataToConfigureDiv", '").addClass("completedButton");', sep = ""))
     shinyjs::runjs(code = paste('$("#', "dataToConfigureDiv", '").removeClass("activeButton");', sep = ""))
+
     
     
     showNotification("Read Data Successfully", duration = 2)

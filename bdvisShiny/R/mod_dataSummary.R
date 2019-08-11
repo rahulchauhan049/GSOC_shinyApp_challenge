@@ -51,12 +51,22 @@ mod_dataSummary_ui <- function(id){
                                   shinydashboard::valueBoxOutput(ns("naCountry"), width = "40%"))),
                column(9,plotlyOutput(ns("countryBar")))
                )),
-      tabPanel("Temporal", selectInput(
+      tabPanel("Temporal", fluidRow(column(3, style = "padding:20px",
+                                           fluidRow(
+                                             shinydashboard::valueBoxOutput(ns("yearstart"), width = "40%")),
+                                             fluidRow(
+                                               shinydashboard::valueBoxOutput(ns("yearend"), width = "40%"))),
+        column(9,
+               selectInput(
         ns("barselect"),
         "Select Column to be displayed",
         c("basisOfRecord", "kingdom", "phylum", "order", "family", "genus", "species"),
         selected = "basisOfRecord"
-      ),plotlyOutput(ns("bar"), height = "50%")),
+      ),plotlyOutput(ns("bar"), height = "50%")
+      ))
+      ),
+      
+      
       tabPanel("Taxonomic",
                sunburstOutput(ns("sunbrust"), height = "350px"))
     ))
@@ -135,6 +145,26 @@ output$Gauge4 <- flexdashboard::renderGauge({
     color = "aqua",
     width = 1
   )})
+  
+  output$yearstart <- shinydashboard::renderValueBox({
+    shinydashboard::valueBox(
+      value = min(na.omit(formattedData()["Year_"])),
+      subtitle = "Starting Year",
+      icon = icon("clock"),
+      color = "aqua",
+      width = 1
+    )
+  })
+  
+  output$yearend <- shinydashboard::renderValueBox({
+    shinydashboard::valueBox(
+      value = max(na.omit(formattedData()["Year_"])),
+      subtitle = "ENd Year",
+      icon = icon("clock"),
+      color = "aqua",
+      width = 1
+    )
+  })
   
   formattedData <- reactive({
     dataset <- dataset()
@@ -238,6 +268,7 @@ output$Gauge4 <- flexdashboard::renderGauge({
     # Plot
     sunburst(temp, legend=FALSE)
   })
+  
   
   
   }
